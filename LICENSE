@@ -1,0 +1,15 @@
+# Matter GN Build Action
+
+Source code is licensed to you under the terms of a default license
+from Silicon Laboratories Inc. This default license and exceptions to this
+default licensing are set forth below.
+
+The default license is the Master Software License Agreement (MSLA)
+(https://www.silabs.com/about-us/legal/master-software-license-agreement), which
+applies unless otherwise noted.
+
+Some files use different licensing terms. If so, they will be clearly marked in
+the beginning of the file.
+
+Library files (either in archived or object form) are distributed under the
+terms of the MSLA.
