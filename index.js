@@ -72,7 +72,7 @@ async function run()
             } = info;
             boards.forEach(board => 
             {
-                const command = `${buildScript} ${board} out/${exampleApp} ${args.join(' ')}`;
+                const command = `${buildScript} examples/${exampleApp}/silabs out/${exampleApp} ${board} ${args.join(' ')}`;
                 commands.push(command);
             });
         });
