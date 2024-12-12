@@ -10,11 +10,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Configure git
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "<>"
-
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
@@ -27,14 +22,3 @@ jobs:
         id: eslint
         run: |
           npx eslint .
-
-      # This step will fail when running with ACT
-      - name: Generate git am command
-        if: failure()
-        run: |
-          npx eslint . --fix
-          git add .
-          git commit -m "ESLint fixes"
-          git format-patch -1 HEAD --stdout | base64 > patch.base64
-          echo "Run the following command locally to apply the fixes:"
-          echo "base64 -d patch.base64 | git am"
