@@ -57,7 +57,7 @@ describe('run', () =>
         expect(core.getInput).toHaveBeenCalledWith('json-file-path');
         expect(core.getInput).toHaveBeenCalledWith('example-app');
         expect(core.getInput).toHaveBeenCalledWith('build-script');
-        expect(execSync).toHaveBeenCalledWith('build_script.sh board1 out/exampleApp arg1 arg2', { stdio: 'inherit' });
+        expect(execSync).toHaveBeenCalledWith('build_script.sh examples/exampleApp/silabs out/exampleApp board1 arg1 arg2', { stdio: 'inherit' });
     });
 
     it('should handle error when reading JSON file', async () => 
