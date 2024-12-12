@@ -17,11 +17,11 @@ To use this action, include it in your workflow YAML file.
 
 ## Inputs
 
-| Name           | Description                                              | Default |
-| -------------- | -------------------------------------------------------- | ------- |
-| `example-app`  | Example app to build                                     |         |
-| `json-content` | JSON content to be used as GN args                       |         |
-| `build-script` | Build script to be executed for the provided example app |         |
+| Name           | Description                                              |
+| -------------- | -------------------------------------------------------- |
+| `example-app`  | Example app to build                                     |
+| `json-content` | JSON content to be used as GN args                       |
+| `build-script` | Build script to be executed for the provided example app |
 
 ## Outputs
 
