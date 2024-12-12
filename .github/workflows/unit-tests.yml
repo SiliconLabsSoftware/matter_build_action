@@ -1,6 +1,6 @@
 name: Run unit tests
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   build:
@@ -20,5 +20,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies
         run: npm install
+
       - name: Run tests
         run: npm test

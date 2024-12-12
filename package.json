@@ -1,4 +1,7 @@
 {
+  "name": "your-action",
+  "version": "0.0.1",
+  "description": "Silicon Labs Matter GN Build Action",
   "devDependencies": {
     "@eslint/js": "^9.16.0",
     "eslint": "^9.16.0",
