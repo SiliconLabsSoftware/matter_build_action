@@ -93,5 +93,5 @@ brew install act
 2. Run the action locally:
 
 ```
-act --container-architecture linux/amd64 --use-gitignore=false -W .github/workflows/eslint-check.yml
+act --container-architecture linux/amd64 -W .github/workflows/eslint-check.yml
 ```
