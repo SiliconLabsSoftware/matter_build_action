@@ -6,7 +6,16 @@ export default [
     {
         languageOptions: 
         {
-            globals: globals.browser
+            globals: {
+                ...globals.browser,
+                require: "readonly",
+                jest: "readonly",
+                describe: "readonly",
+                beforeEach: "readonly",
+                it: "readonly",
+                expect: "readonly",
+                module: "readonly"
+            }
         }
     },
     pluginJs.configs.recommended,
