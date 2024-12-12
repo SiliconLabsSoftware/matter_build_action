@@ -57,8 +57,7 @@ async function run()
     // Builds the commands that need to be execute based on the provide inputs
     core.startGroup(`Step ${stepCounter++}: Parse JSON file to pull build information for the example-app.`);
     let commands = [];
-    try     
-    {
+    try     {
         const buildInfo = jsonData[exampleApp];
         if (!buildInfo) 
         {
