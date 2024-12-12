@@ -1,0 +1,15 @@
+name: 'Run GN example build'
+description: 'Build Silabs example app using the GN build system based on the provided arguments'
+inputs:
+  example-app:
+    description: 'Example app to build'
+    required: true
+  json-content:
+    description: 'JSON content to be used as GN args'
+    required: true
+  build-script:
+    description: 'Build script to be executed for the provided example app'
+    required: true
+runs:
+  using: 'node20'
+  main: 'index.js'

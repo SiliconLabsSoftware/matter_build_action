@@ -1,0 +1,22 @@
+{
+    "sample-app-1": [
+        {
+            "boards": ["board1", "board2"],
+            "arguments": ["arg1", "arg2"]
+        },
+        {
+            "boards": ["board3"],
+            "arguments": ["arg3", "arg4"]
+        }
+    ],
+    "sample-app-2": [
+        {
+            "boards": ["board1", "board2"],
+            "arguments": ["arg1", "arg2"]
+        },
+        {
+            "boards": ["board3", "board4"],
+            "arguments": ["arg3", "arg4"]
+        }
+    ]
+}

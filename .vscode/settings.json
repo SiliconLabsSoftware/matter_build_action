@@ -1,0 +1,19 @@
+{
+  "javascript.validate.enable": false, // Disable the built-in validation
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.alwaysShowStatus": true,
+  "editor.defaultFormatter": null,
+  "[shellscript]": {
+    "editor.defaultFormatter": "mkhl.shfmt"
+  } // Remove Prettier as the default formatter
+
+}
