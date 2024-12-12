@@ -47,8 +47,7 @@ async function run()
         const data = await readFileAsync(filePath, 'utf8');
         jsonData = JSON.parse(data);
     }
-    catch (error) 
-    {
+    catch (error) {
         core.setFailed(`Action failed with error: ${error}`);
         console.error('Error reading or parsing JSON file:', error);
     }
