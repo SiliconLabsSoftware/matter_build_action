@@ -1,15 +1,14 @@
 name: Build and Publish Action
 
 on:
-  workflow_run:
-    workflows: ["Validate Action", "Run unit tests", "ESLint Check"]
-    types:
-      - completed
+  push:
+    branches:
+      - main
 
 jobs:
   build:
-    if: github.event.workflow_run.conclusion == 'success' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    concurrency: build-and-publish
 
     steps:
       - name: Checkout repository
@@ -27,7 +26,7 @@ jobs:
         run: npm run build
 
       - name: Publish to GitHub
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: action
           path: dist
