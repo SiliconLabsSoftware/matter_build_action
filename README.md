@@ -8,6 +8,8 @@ GitHub Action used to build Matter examples with the GN build system.
 - [Inputs](#inputs)
 - [Outputs](#outputs)
 - [Example Workflow](#example-workflow)
+- [Setup and Testing](#setup-and-testing)
+- [Testing GitHub Actions Locally](#testing-github-actions-locally)
 
 ## Usage
 
@@ -76,4 +78,20 @@ Run the tests:
 
 ```
 npm test
+```
+
+## Testing GitHub Actions Locally
+
+You can use the `act` tool to test GitHub Actions locally.
+
+1. Install `act`:
+
+```
+brew install act
+```
+
+2. Run the action locally:
+
+```
+act --container-architecture linux/amd64 --use-gitignore=false -W .github/workflows/eslint-check.yml
 ```
