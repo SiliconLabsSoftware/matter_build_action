@@ -13,14 +13,14 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version-file: .node-version
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Run JSON File Action
         uses: ./ # Assuming the action is in the root directory
         with:
-          json-file-path: "tests/test.json"
+          json-file-path: "__tests__/test.json"
           example-app: "sample-app-1"
-          build-script: "tests/build_script.sh"
+          build-script: "__tests__/build_script.sh"

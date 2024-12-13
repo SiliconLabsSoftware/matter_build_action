@@ -1,7 +1,23 @@
 {
-  "name": "your-action",
-  "version": "0.0.1",
+  "name": "matter-gn-build-action",
   "description": "Silicon Labs Matter GN Build Action",
+  "version": "0.0.1",
+  "author": "Silicon Labs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SiliconLabsSoftware/matter-gn-build-action.git"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "npx jest",
+    "package": "ncc build src/index.js -o dist --source-map --license licenses.txt",
+    "lint": "npx eslint . --fix"
+  },
   "devDependencies": {
     "@eslint/js": "^9.16.0",
     "@vercel/ncc": "^0.38.3",
@@ -12,9 +28,5 @@
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.0"
-  },
-  "scripts": {
-    "test": "jest",
-    "build": "ncc build index.js -o dist"
   }
 }

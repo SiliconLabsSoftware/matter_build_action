@@ -1,5 +1,7 @@
 name: 'Run GN example build'
 description: 'Build Silabs example app using the GN build system based on the provided arguments'
+author: 'Silicon Labs'
+
 inputs:
   example-app:
     description: 'Example app to build'
@@ -10,6 +12,7 @@ inputs:
   build-script:
     description: 'Build script to be executed for the provided example app'
     required: true
+
 runs:
   using: 'node20'
-  main: 'index.js'
+  main: dist/index.js

@@ -4,7 +4,7 @@ import pluginJs from "@eslint/js";
 /** @type {import('eslint').Linter.Config[]} */
 export default [
     {
-        ignores: ["dist/**"],
+        ignores: ["dist/**", "node_modules/**", "coverage/**"],
     },
     {
         languageOptions: 
