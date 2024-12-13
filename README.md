@@ -47,7 +47,7 @@ jobs:
         uses: ./ # Uses an action in the root directory
         with:
           example-app: "lighting-app"
-          json-content: "./path/to/json.json"
+          json-file-path "./path/to/json.json"
           build-script: "./path/to/build_script.sh"
 
       - name: Upload Build Artifacts
