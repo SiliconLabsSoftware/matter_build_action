@@ -6,7 +6,7 @@ inputs:
   example-app:
     description: 'Example app to build'
     required: true
-  json-content:
+  json-file-path:
     description: 'JSON content to be used as GN args'
     required: true
   build-script:
