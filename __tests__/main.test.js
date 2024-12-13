@@ -1,7 +1,7 @@
 const core = require('@actions/core');
 const fs = require('fs');
 const { execSync } = require('child_process');
-const { run } = require('../index.js');
+const { run } = require('../src/main.js');
 
 jest.mock('@actions/core');
 jest.mock('@actions/github');
