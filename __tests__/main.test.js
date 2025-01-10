@@ -40,6 +40,7 @@ describe('run', () =>
             if (name === 'json-file-path') return './test.json';
             if (name === 'example-app') return 'exampleApp';
             if (name === 'build-script') return 'build_script.sh';
+            if (name === 'output-directory') return 'out/test';
         });
 
         fs.readFile = jest.fn((path, encoding, callback) => 
@@ -57,7 +58,8 @@ describe('run', () =>
         expect(core.getInput).toHaveBeenCalledWith('json-file-path');
         expect(core.getInput).toHaveBeenCalledWith('example-app');
         expect(core.getInput).toHaveBeenCalledWith('build-script');
-        expect(execSync).toHaveBeenCalledWith('build_script.sh examples/exampleApp/silabs out/exampleApp board1 arg1 arg2', { stdio: 'inherit' });
+        expect(core.getInput).toHaveBeenCalledWith('output-directory');
+        expect(execSync).toHaveBeenCalledWith('build_script.sh examples/exampleApp/silabs out/test board1 arg1 arg2', { stdio: 'inherit' });
     });
 
     it('should handle error when reading JSON file', async () => 
@@ -67,6 +69,8 @@ describe('run', () =>
             if (name === 'json-file-path') return './test.json';
             if (name === 'example-app') return 'exampleApp';
             if (name === 'build-script') return 'build_script.sh';
+            if (name === 'output-directory') return 'out/test';
+
         });
 
         fs.readFile = jest.fn((path, encoding, callback) => 
@@ -86,6 +90,7 @@ describe('run', () =>
             if (name === 'json-file-path') return './test.json';
             if (name === 'example-app') return 'exampleApp';
             if (name === 'build-script') return 'build_script.sh';
+            if (name === 'output-directory') return 'out/test';
         });
 
         fs.readFile = jest.fn((path, encoding, callback) => 
@@ -114,6 +119,7 @@ describe('run', () =>
             if (name === 'json-file-path') return './test.json';
             if (name === 'example-app') return 'exampleApp';
             if (name === 'build-script') return 'build_script.sh';
+            if (name === 'output-directory') return 'out/test';
         });
 
         fs.readFile = jest.fn((path, encoding, callback) => 
@@ -142,6 +148,7 @@ describe('run', () =>
             if (name === 'json-file-path') return './test.json';
             if (name === 'example-app') return 'exampleApp';
             if (name === 'build-script') return 'build_script.sh';
+            if (name === 'output-directory') return 'out/test';
         });
 
         fs.readFile = jest.fn((path, encoding, callback) => 
