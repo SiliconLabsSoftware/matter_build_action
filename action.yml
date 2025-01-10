@@ -12,6 +12,9 @@ inputs:
   build-script:
     description: 'Build script to be executed for the provided example app'
     required: true
+  output-directory:
+    description: 'Output directory for the build artifacts'
+    required: true
 
 runs:
   using: 'node20'

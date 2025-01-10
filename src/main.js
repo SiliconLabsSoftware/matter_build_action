@@ -34,6 +34,7 @@ async function run()
     let exampleApp;
     let jsonData;
     let buildScript;
+    let outputDirectory;
     let stepCounter = 1;
 
     // Process the github arguments and stores them
@@ -42,6 +43,7 @@ async function run()
     {
         exampleApp = core.getInput('example-app');
         buildScript = core.getInput('build-script');
+        outputDirectory = core.getInput('output-directory');
 
         const filePath = core.getInput('json-file-path');
         const data = await readFileAsync(filePath, 'utf8');
@@ -72,7 +74,7 @@ async function run()
             } = info;
             boards.forEach(board => 
             {
-                const command = `${buildScript} examples/${exampleApp}/silabs out/${exampleApp} ${board} ${args.join(' ')}`;
+                const command = `${buildScript} examples/${exampleApp}/silabs ${outputDirectory} ${board} ${args.join(' ')}`;
                 commands.push(command);
             });
         });
