@@ -22,7 +22,7 @@ permissions:
 
 jobs:
   check-dist:
-    name: Check dist/
+    name: Check dist Directory
     runs-on: ubuntu-latest
 
     steps:
