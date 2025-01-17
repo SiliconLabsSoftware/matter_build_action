@@ -10,6 +10,7 @@ GitHub Action used to build Matter examples with the GN build system.
 - [Example Workflow](#example-workflow)
 - [Setup and Testing](#setup-and-testing)
 - [Testing GitHub Actions Locally](#testing-github-actions-locally)
+- [Default Builds](#default-builds)
 
 ## Usage
 
@@ -94,4 +95,27 @@ brew install act
 
 ```
 act --container-architecture linux/amd64 -W .github/workflows/eslint-check.yml
+```
+
+## Default Builds
+
+If the JSON file contains a "default" key, the action will also run the build commands specified under this key. This allows you to define common build configurations that should be executed regardless of the specific example app.
+
+Example JSON structure:
+
+```json
+{
+  "default": [
+    {
+      "boards": ["defaultBoard"],
+      "arguments": ["defaultArg1", "defaultArg2"]
+    }
+  ],
+  "exampleApp": [
+    {
+      "boards": ["board1"],
+      "arguments": ["arg1", "arg2"]
+    }
+  ]
+}
 ```

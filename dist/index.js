@@ -25700,7 +25700,23 @@ async function run()
     core.startGroup(`Step ${stepCounter++}: Parse JSON file to pull build information for the example-app.`);
     let commands = [];
     try     
-    {
+    {   
+        const defaultBuildInfo = jsonData["default"]
+        if (defaultBuildInfo) 
+        {
+            defaultBuildInfo.forEach(info => 
+            {
+                const {
+                    boards, arguments: args 
+                } = info;
+                boards.forEach(board => 
+                {
+                    const command = `${buildScript} examples/${exampleApp}/silabs ${outputDirectory} ${board} ${args.join(' ')}`;
+                    commands.push(command);
+                });
+            });
+        }
+
         const buildInfo = jsonData[exampleApp];
         if (!buildInfo) 
         {

@@ -1,4 +1,10 @@
 {
+    "default": [
+        {
+            "boards": ["default1", "default2"],
+            "arguments": ["defaultArg1", "defaultArg2"]
+        }
+    ],
     "sample-app-1": [
         {
             "boards": ["board1", "board2"],
