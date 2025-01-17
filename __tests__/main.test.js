@@ -210,4 +210,71 @@ describe('run', () =>
         expect(execSync).toHaveBeenCalledWith('build_script.sh examples/exampleApp/silabs out/test defaultBoard defaultArg1 defaultArg2', { stdio: 'inherit' });
         expect(execSync).toHaveBeenCalledWith('build_script.sh examples/exampleApp/silabs out/test board1 arg1 arg2', { stdio: 'inherit' });
     });
+
+    it('should run only default commands if no specific build information is found for the example app', async () => 
+    {
+        const mockJsonData = {
+            "default": [
+                {
+                    "boards": ["defaultBoard"],
+                    "arguments": ["defaultArg1", "defaultArg2"]
+                }
+            ]
+        };
+
+        core.getInput = jest.fn((name) => 
+        {
+            if (name === 'json-file-path') return './test.json';
+            if (name === 'example-app') return 'exampleApp';
+            if (name === 'build-script') return 'build_script.sh';
+            if (name === 'output-directory') return 'out/test';
+        });
+
+        fs.readFile = jest.fn((path, encoding, callback) => 
+        {
+            callback(null, JSON.stringify(mockJsonData));
+        });
+
+        execSync.mockImplementation((command, options) => 
+        {
+            console.log('execSync called with:', command, options);
+        });
+
+        await run();
+        
+        expect(core.getInput).toHaveBeenCalledWith('json-file-path');
+        expect(core.getInput).toHaveBeenCalledWith('example-app');
+        expect(core.getInput).toHaveBeenCalledWith('build-script');
+        expect(core.getInput).toHaveBeenCalledWith('output-directory');
+
+        expect(execSync).toHaveBeenCalledWith('build_script.sh examples/exampleApp/silabs out/test defaultBoard defaultArg1 defaultArg2', { stdio: 'inherit' });
+        expect(core.setFailed).not.toHaveBeenCalledWith(expect.stringContaining('Action failed with error: No build information found for exampleApp'));
+        expect(execSync).not.toHaveBeenCalledWith(expect.stringContaining('board1'));
+    });
+
+    it('should handle error when no default or exampleApp build information is found', async () => 
+    {
+        const mockJsonData = {};
+
+        core.getInput = jest.fn((name) => 
+        {
+            if (name === 'json-file-path') return './test.json';
+            if (name === 'example-app') return 'exampleApp';
+            if (name === 'build-script') return 'build_script.sh';
+            if (name === 'output-directory') return 'out/test';
+        });
+
+        fs.readFile = jest.fn((path, encoding, callback) => 
+        {
+            callback(null, JSON.stringify(mockJsonData));
+        });
+
+        await run();
+        
+        expect(core.getInput).toHaveBeenCalledWith('json-file-path');
+        expect(core.getInput).toHaveBeenCalledWith('example-app');
+        expect(core.getInput).toHaveBeenCalledWith('build-script');
+        expect(core.getInput).toHaveBeenCalledWith('output-directory');
+        expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Action failed with error: No build information found for exampleApp'));
+    });
 });
