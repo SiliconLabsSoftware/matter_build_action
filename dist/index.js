@@ -25716,9 +25716,14 @@ async function run()
                 });
             });
         }
+        else
+        {
+            console.log('No default build information found.');
+            core.info('No default build information found.');
+        }
 
         const buildInfo = jsonData[exampleApp];
-        if (!buildInfo) 
+        if (!buildInfo && !defaultBuildInfo) 
         {
             core.setFailed(`Action failed with error: No build information found for ${exampleApp}`);
         }
