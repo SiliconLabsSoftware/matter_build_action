@@ -53,7 +53,7 @@ describe('run', () =>
             console.log('execSync called with:', command, options);
         });
 
-        await run();
+        await expect(run()).resolves.not.toThrow();
         
         expect(core.getInput).toHaveBeenCalledWith('json-file-path');
         expect(core.getInput).toHaveBeenCalledWith('example-app');
@@ -78,7 +78,7 @@ describe('run', () =>
             callback(new Error('File read error'), null);
         });
 
-        await run();
+        await expect(run()).resolves.not.toThrow();
         
         expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Action failed with error:'));
     });
@@ -98,7 +98,7 @@ describe('run', () =>
             callback(null, 'invalid json');
         });
 
-        await run();
+        await expect(run()).resolves.not.toThrow();
         
         expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Action failed with error:'));
     });
@@ -127,7 +127,7 @@ describe('run', () =>
             callback(null, JSON.stringify(mockJsonData));
         });
 
-        await run();
+        await expect(run()).resolves.not.toThrow();
         
         expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Action failed with error: No build information found for exampleApp'));
     });
@@ -161,7 +161,7 @@ describe('run', () =>
             throw new Error('Command execution error');
         });
 
-        await run();
+        await expect(run()).resolves.not.toThrow();
         
         expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Build script failed with error: Command execution error'));
     });
@@ -201,7 +201,7 @@ describe('run', () =>
             console.log('execSync called with:', command, options);
         });
 
-        await run();
+        await expect(run()).resolves.not.toThrow();
         
         expect(core.getInput).toHaveBeenCalledWith('json-file-path');
         expect(core.getInput).toHaveBeenCalledWith('example-app');
@@ -240,7 +240,7 @@ describe('run', () =>
             console.log('execSync called with:', command, options);
         });
 
-        await run();
+        await expect(run()).resolves.not.toThrow();
         
         expect(core.getInput).toHaveBeenCalledWith('json-file-path');
         expect(core.getInput).toHaveBeenCalledWith('example-app');
@@ -248,7 +248,8 @@ describe('run', () =>
         expect(core.getInput).toHaveBeenCalledWith('output-directory');
 
         expect(execSync).toHaveBeenCalledWith('build_script.sh examples/exampleApp/silabs out/test defaultBoard defaultArg1 defaultArg2', { stdio: 'inherit' });
-        expect(core.setFailed).not.toHaveBeenCalledWith(expect.stringContaining('Action failed with error: No build information found for exampleApp'));
+        
+        expect(core.setFailed).not.toHaveBeenCalledWith(expect.stringContaining('Action failed with error:'));
         expect(execSync).not.toHaveBeenCalledWith(expect.stringContaining('board1'));
     });
 
@@ -269,7 +270,7 @@ describe('run', () =>
             callback(null, JSON.stringify(mockJsonData));
         });
 
-        await run();
+        await expect(run()).resolves.not.toThrow();
         
         expect(core.getInput).toHaveBeenCalledWith('json-file-path');
         expect(core.getInput).toHaveBeenCalledWith('example-app');

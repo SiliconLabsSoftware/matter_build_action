@@ -24,5 +24,5 @@ jobs:
         uses: ./ # Assuming the action is in the root directory
         with:
           json-file-path: "__tests__/test.json"
-          example-app: "sample-app-1"
+          example-app: "sample-app-3"
           build-script: "__tests__/build_script.sh"
