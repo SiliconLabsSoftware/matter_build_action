@@ -25725,20 +25725,24 @@ async function run()
         const buildInfo = jsonData[exampleApp];
         if (!buildInfo && !defaultBuildInfo) 
         {
+            console.error(`Action failed with error: No build information found for ${exampleApp}`);
             core.setFailed(`Action failed with error: No build information found for ${exampleApp}`);
         }
 
-        buildInfo.forEach(info => 
+        if(buildInfo)
         {
-            const {
-                boards, arguments: args 
-            } = info;
-            boards.forEach(board => 
+            buildInfo.forEach(info => 
             {
-                const command = `${buildScript} examples/${exampleApp}/silabs ${outputDirectory} ${board} ${args.join(' ')}`;
-                commands.push(command);
+                const {
+                    boards, arguments: args 
+                } = info;
+                boards.forEach(board => 
+                {
+                    const command = `${buildScript} examples/${exampleApp}/silabs ${outputDirectory} ${board} ${args.join(' ')}`;
+                    commands.push(command);
+                });
             });
-        });
+        }
 
         core.info(`Commands to execute: ${JSON.stringify(commands)}`);
     }
