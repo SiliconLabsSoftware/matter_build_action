@@ -1,11 +1,11 @@
 {
-  "name": "matter-gn-build-action",
-  "description": "Silicon Labs Matter GN Build Action",
+  "name": "matter_build_action",
+  "description": "Silicon Labs Matter Build Action",
   "version": "0.0.1",
   "author": "Silicon Labs",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SiliconLabsSoftware/matter-gn-build-action.git"
+    "url": "git+https://github.com/SiliconLabsSoftware/matter_build_action.git"
   },
   "exports": {
     ".": "./dist/index.js"

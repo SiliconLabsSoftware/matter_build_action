@@ -1,4 +1,4 @@
-# matter-gn-build-action
+# matter_build_action
 
 GitHub Action used to build Matter examples with the GN build system.
 
@@ -65,8 +65,8 @@ To set up the repository and run the unit tests, follow these steps:
 1. Clone the repository:
 
 ```
-git clone https://github.com/your-username/matter-gn-build-action.git
-cd matter-gn-build-action
+git clone https://github.com/your-username/matter_build_action.git
+cd matter_build_action
 ```
 
 2. Install dependencies:
