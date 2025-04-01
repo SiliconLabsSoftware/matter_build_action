@@ -47,7 +47,6 @@ describe('run', () =>
             }
         };
 
-
         core.getInput = jest.fn((name) => 
         {
             if (name === 'json-file-path') return './test.json';
@@ -74,12 +73,12 @@ describe('run', () =>
 
         await expect(run()).resolves.not.toThrow();
         
-        expect(core.getInput).toHaveBeenCalledWith('json-file-path');
-        expect(core.getInput).toHaveBeenCalledWith('example-app');
-        expect(core.getInput).toHaveBeenCalledWith('build-script');
-        expect(core.getInput).toHaveBeenCalledWith('output-directory');
-        expect(core.getInput).toHaveBeenCalledWith('path-to-example-app');
-        expect(core.getInput).toHaveBeenCalledWith('build-type'); // Validate build-type input
+        expect(core.getInput).toHaveBeenCalledWith('json-file-path', { required: true });
+        expect(core.getInput).toHaveBeenCalledWith('example-app', { required: true });
+        expect(core.getInput).toHaveBeenCalledWith('build-script', { required: true });
+        expect(core.getInput).toHaveBeenCalledWith('output-directory', { required: true });
+        expect(core.getInput).toHaveBeenCalledWith('path-to-example-app', { required: true });
+        expect(core.getInput).toHaveBeenCalledWith('build-type', { required: true }); // Validate build-type input
         expect(execSync).toHaveBeenCalledWith(mockCommands[0], { stdio: 'inherit' });
     });
 
