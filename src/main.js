@@ -57,8 +57,8 @@ async function run()
     core.startGroup(`Step ${stepCounter++}: Read and parse github action inputs.`);
     try 
     {
-        const buildType = core.getInput('build-type', { required: true });
-
+        buildType = core.getInput('build-type', { required: true });
+        
         // Validate build type
         if (!supportedBuildTypes.includes(buildType)) 
         {
