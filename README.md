@@ -18,12 +18,13 @@ To use this action, include it in your workflow YAML file.
 
 ## Inputs
 
-| Name               | Description                                              |
-| ------------------ | -------------------------------------------------------- |
-| `example-app`      | Example app to build                                     |
-| `json-file-path`   | JSON content to be used as GN args                       |
-| `build-script`     | Build script to be executed for the provided example app |
-| `output-directory` | Output directory for the build artifacts                 |
+| Name                  | Description                                              |
+| --------------------- | -------------------------------------------------------- |
+| `example-app`         | Example app to build                                     |
+| `path-to-example-app` | Path example directory to be built                       |
+| `json-file-path`      | JSON content to be used as GN args                       |
+| `build-script`        | Build script to be executed for the provided example app |
+| `output-directory`    | Output directory for the build artifacts                 |
 
 ## Outputs
 
@@ -47,6 +48,7 @@ jobs:
         uses: ./ # Uses an action in the root directory
         with:
           example-app: "lighting-app"
+          path-to-example-app: "./path/to/lighting-app"
           json-file-path: "./path/to/json.json"
           build-script: "./path/to/build_script.sh"
           output-directory: "./path/to/output"

@@ -4,7 +4,10 @@ author: 'Silicon Labs'
 
 inputs:
   example-app:
-    description: 'Example app to build'
+    description: 'Example app name to build'
+    required: true
+  path-to-example-app:
+    description: 'Path to the example app directory to be built'
     required: true
   json-file-path:
     description: 'JSON content to be used as GN args'
