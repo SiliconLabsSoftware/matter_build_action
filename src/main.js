@@ -57,7 +57,7 @@ async function run()
     core.startGroup(`Step ${stepCounter++}: Read and parse github action inputs.`);
     try 
     {
-        buildType = core.getInput('build-type'); // Input for build type
+        const buildType = core.getInput('build-type', { required: true });
 
         // Validate build type
         if (!supportedBuildTypes.includes(buildType)) 
@@ -68,12 +68,12 @@ async function run()
             return;
         }
 
-        exampleApp = core.getInput('example-app');
-        pathToExampleApp = core.getInput('path-to-example-app');
-        buildScript = core.getInput('build-script');
-        outputDirectory = core.getInput('output-directory');
-
-        const filePath = core.getInput('json-file-path');
+        exampleApp = core.getInput('example-app', { required: true });
+        pathToExampleApp = core.getInput('path-to-example-app', { required: true });
+        buildScript = core.getInput('build-script', { required: true });
+        outputDirectory = core.getInput('output-directory', { required: true });
+        
+        const filePath = core.getInput('json-file-path', { required: true });
         const data = await readFileAsync(filePath, 'utf8'); // Read JSON file
         jsonData = JSON.parse(data); // Parse JSON data
     }
