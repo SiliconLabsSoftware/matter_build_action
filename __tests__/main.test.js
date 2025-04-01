@@ -2,6 +2,7 @@ const core = require('@actions/core');
 const fs = require('fs');
 const { execSync } = require('child_process');
 const { run } = require('../src/main.js');
+const { JsonParser } = require('../src/jsonParser'); // Mock JsonParser
 
 jest.mock('@actions/core');
 jest.mock('@actions/github');
@@ -16,6 +17,7 @@ jest.mock('fs', () => ({
     },
 }));
 jest.mock('child_process');
+jest.mock('../src/jsonParser'); // Mock JsonParser
 
 describe('run', () => 
 {
@@ -26,14 +28,25 @@ describe('run', () =>
 
     it('should run the GitHub Action successfully', async () => 
     {
+        const mockCommands = ['build_script.sh examples/exampleApp/silabs out/test board1 arg1 arg2'];
+
         const mockJsonData = {
-            "exampleApp": [
-                {
-                    "boards": ["board1"],
-                    "arguments": ["arg1", "arg2"]
-                }
-            ],
+            "standard": {
+                "default": [
+                    {
+                        "boards": ["board1"],
+                        "arguments": ["arg1", "arg2"]
+                    }
+                ],
+                "lighting-app": [
+                    {
+                        "boards": ["board1"],
+                        "arguments": ["arg1", "arg2"]
+                    }
+                ],            
+            }
         };
+
 
         core.getInput = jest.fn((name) => 
         {
@@ -42,12 +55,17 @@ describe('run', () =>
             if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
             if (name === 'build-script') return 'build_script.sh';
             if (name === 'output-directory') return 'out/test';
+            if (name === 'build-type') return 'standard'; // Mock build-type input
         });
 
         fs.readFile = jest.fn((path, encoding, callback) => 
         {
             callback(null, JSON.stringify(mockJsonData));
         });
+
+        JsonParser.mockImplementation(() => ({
+            generateCommands: jest.fn(() => mockCommands),
+        }));
 
         execSync.mockImplementation((command, options) => 
         {
@@ -61,10 +79,11 @@ describe('run', () =>
         expect(core.getInput).toHaveBeenCalledWith('build-script');
         expect(core.getInput).toHaveBeenCalledWith('output-directory');
         expect(core.getInput).toHaveBeenCalledWith('path-to-example-app');
-        expect(execSync).toHaveBeenCalledWith('build_script.sh examples/exampleApp/silabs out/test board1 arg1 arg2', { stdio: 'inherit' });
+        expect(core.getInput).toHaveBeenCalledWith('build-type'); // Validate build-type input
+        expect(execSync).toHaveBeenCalledWith(mockCommands[0], { stdio: 'inherit' });
     });
 
-    it('should handle error when reading JSON file', async () => 
+    it('should handle invalid build type', async () => 
     {
         core.getInput = jest.fn((name) => 
         {
@@ -73,20 +92,15 @@ describe('run', () =>
             if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
             if (name === 'build-script') return 'build_script.sh';
             if (name === 'output-directory') return 'out/test';
-
-        });
-
-        fs.readFile = jest.fn((path, encoding, callback) => 
-        {
-            callback(new Error('File read error'), null);
+            if (name === 'build-type') return 'invalid-type'; // Invalid build-type
         });
 
         await expect(run()).resolves.not.toThrow();
         
-        expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Action failed with error:'));
+        expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Invalid build type: invalid-type. Supported build types are: standard, full, sqa, release'));
     });
 
-    it('should handle error when parsing JSON file', async () => 
+    it('should handle error when JsonParser throws an error', async () => 
     {
         core.getInput = jest.fn((name) => 
         {
@@ -95,58 +109,22 @@ describe('run', () =>
             if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
             if (name === 'build-script') return 'build_script.sh';
             if (name === 'output-directory') return 'out/test';
+            if (name === 'build-type') return 'standard';
         });
 
-        fs.readFile = jest.fn((path, encoding, callback) => 
+        JsonParser.mockImplementation(() => 
         {
-            callback(null, 'invalid json');
+            throw new Error('JsonParser error');
         });
 
         await expect(run()).resolves.not.toThrow();
         
-        expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Action failed with error:'));
-    });
-
-    it('should handle error when no build information is found for the example app', async () => 
-    {
-        const mockJsonData = {
-            "anotherApp": [
-                {
-                    "boards": ["board1"],
-                    "arguments": ["arg1", "arg2"]
-                }
-            ],
-        };
-
-        core.getInput = jest.fn((name) => 
-        {
-            if (name === 'json-file-path') return './test.json';
-            if (name === 'example-app') return 'exampleApp';
-            if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
-            if (name === 'build-script') return 'build_script.sh';
-            if (name === 'output-directory') return 'out/test';
-        });
-
-        fs.readFile = jest.fn((path, encoding, callback) => 
-        {
-            callback(null, JSON.stringify(mockJsonData));
-        });
-
-        await expect(run()).resolves.not.toThrow();
-        
-        expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Action failed with error: No build information found for exampleApp'));
+        expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Action failed with error: JsonParser error'));
     });
 
     it('should handle error during command execution', async () => 
     {
-        const mockJsonData = {
-            "exampleApp": [
-                {
-                    "boards": ["board1"],
-                    "arguments": ["arg1", "arg2"]
-                }
-            ],
-        };
+        const mockCommands = ['build_script.sh examples/exampleApp/silabs out/test board1 arg1 arg2'];
 
         core.getInput = jest.fn((name) => 
         {
@@ -155,12 +133,12 @@ describe('run', () =>
             if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
             if (name === 'build-script') return 'build_script.sh';
             if (name === 'output-directory') return 'out/test';
+            if (name === 'build-type') return 'standard';
         });
 
-        fs.readFile = jest.fn((path, encoding, callback) => 
-        {
-            callback(null, JSON.stringify(mockJsonData));
-        });
+        JsonParser.mockImplementation(() => ({
+            generateCommands: jest.fn(() => mockCommands),
+        }));
 
         execSync.mockImplementation(() => 
         {
@@ -172,23 +150,8 @@ describe('run', () =>
         expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Build script failed with error: Command execution error'));
     });
 
-    it('should run default commands if present in JSON file', async () => 
+    it('should handle error when readFileAsync throws an error', async () => 
     {
-        const mockJsonData = {
-            "default": [
-                {
-                    "boards": ["defaultBoard"],
-                    "arguments": ["defaultArg1", "defaultArg2"]
-                }
-            ],
-            "exampleApp": [
-                {
-                    "boards": ["board1"],
-                    "arguments": ["arg1", "arg2"]
-                }
-            ],
-        };
-
         core.getInput = jest.fn((name) => 
         {
             if (name === 'json-file-path') return './test.json';
@@ -196,98 +159,16 @@ describe('run', () =>
             if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
             if (name === 'build-script') return 'build_script.sh';
             if (name === 'output-directory') return 'out/test';
+            if (name === 'build-type') return 'standard';
         });
 
         fs.readFile = jest.fn((path, encoding, callback) => 
         {
-            callback(null, JSON.stringify(mockJsonData));
-        });
-
-        execSync.mockImplementation((command, options) => 
-        {
-            console.log('execSync called with:', command, options);
+            callback(new Error('readFileAsync error'), null);
         });
 
         await expect(run()).resolves.not.toThrow();
         
-        expect(core.getInput).toHaveBeenCalledWith('json-file-path');
-        expect(core.getInput).toHaveBeenCalledWith('example-app');
-        expect(core.getInput).toHaveBeenCalledWith('build-script');
-        expect(core.getInput).toHaveBeenCalledWith('output-directory');
-        expect(core.getInput).toHaveBeenCalledWith('path-to-example-app');
-        expect(execSync).toHaveBeenCalledWith('build_script.sh examples/exampleApp/silabs out/test defaultBoard defaultArg1 defaultArg2', { stdio: 'inherit' });
-        expect(execSync).toHaveBeenCalledWith('build_script.sh examples/exampleApp/silabs out/test board1 arg1 arg2', { stdio: 'inherit' });
-    });
-
-    it('should run only default commands if no specific build information is found for the example app', async () => 
-    {
-        const mockJsonData = {
-            "default": [
-                {
-                    "boards": ["defaultBoard"],
-                    "arguments": ["defaultArg1", "defaultArg2"]
-                }
-            ]
-        };
-
-        core.getInput = jest.fn((name) => 
-        {
-            if (name === 'json-file-path') return './test.json';
-            if (name === 'example-app') return 'exampleApp';
-            if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
-            if (name === 'build-script') return 'build_script.sh';
-            if (name === 'output-directory') return 'out/test';
-        });
-
-        fs.readFile = jest.fn((path, encoding, callback) => 
-        {
-            callback(null, JSON.stringify(mockJsonData));
-        });
-
-        execSync.mockImplementation((command, options) => 
-        {
-            console.log('execSync called with:', command, options);
-        });
-
-        await expect(run()).resolves.not.toThrow();
-        
-        expect(core.getInput).toHaveBeenCalledWith('json-file-path');
-        expect(core.getInput).toHaveBeenCalledWith('example-app');
-        expect(core.getInput).toHaveBeenCalledWith('build-script');
-        expect(core.getInput).toHaveBeenCalledWith('output-directory');
-        expect(core.getInput).toHaveBeenCalledWith('path-to-example-app');
-
-        expect(execSync).toHaveBeenCalledWith('build_script.sh examples/exampleApp/silabs out/test defaultBoard defaultArg1 defaultArg2', { stdio: 'inherit' });
-        
-        expect(core.setFailed).not.toHaveBeenCalledWith(expect.stringContaining('Action failed with error:'));
-        expect(execSync).not.toHaveBeenCalledWith(expect.stringContaining('board1'));
-    });
-
-    it('should handle error when no default or exampleApp build information is found', async () => 
-    {
-        const mockJsonData = {};
-
-        core.getInput = jest.fn((name) => 
-        {
-            if (name === 'json-file-path') return './test.json';
-            if (name === 'example-app') return 'exampleApp';
-            if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
-            if (name === 'build-script') return 'build_script.sh';
-            if (name === 'output-directory') return 'out/test';
-        });
-
-        fs.readFile = jest.fn((path, encoding, callback) => 
-        {
-            callback(null, JSON.stringify(mockJsonData));
-        });
-
-        await expect(run()).resolves.not.toThrow();
-        
-        expect(core.getInput).toHaveBeenCalledWith('json-file-path');
-        expect(core.getInput).toHaveBeenCalledWith('example-app');
-        expect(core.getInput).toHaveBeenCalledWith('build-script');
-        expect(core.getInput).toHaveBeenCalledWith('output-directory');
-        expect(core.getInput).toHaveBeenCalledWith('path-to-example-app');
-        expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Action failed with error: No build information found for exampleApp'));
+        expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Action failed with error: Error: readFileAsync error'));
     });
 });

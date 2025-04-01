@@ -18,6 +18,9 @@ inputs:
   output-directory:
     description: 'Output directory for the build artifacts'
     required: true
+  build-type:
+    description: 'Type of build to be executed'
+    required: true
 
 runs:
   using: 'node20'

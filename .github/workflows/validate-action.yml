@@ -27,3 +27,4 @@ jobs:
           example-app: "sample-app-1"
           path-to-example-app: "path/to/sample-app-1"
           build-script: "__tests__/build_script.sh"
+          output-directory: "out/"
