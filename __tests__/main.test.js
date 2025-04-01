@@ -39,6 +39,7 @@ describe('run', () =>
         {
             if (name === 'json-file-path') return './test.json';
             if (name === 'example-app') return 'exampleApp';
+            if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
             if (name === 'build-script') return 'build_script.sh';
             if (name === 'output-directory') return 'out/test';
         });
@@ -59,6 +60,7 @@ describe('run', () =>
         expect(core.getInput).toHaveBeenCalledWith('example-app');
         expect(core.getInput).toHaveBeenCalledWith('build-script');
         expect(core.getInput).toHaveBeenCalledWith('output-directory');
+        expect(core.getInput).toHaveBeenCalledWith('path-to-example-app');
         expect(execSync).toHaveBeenCalledWith('build_script.sh examples/exampleApp/silabs out/test board1 arg1 arg2', { stdio: 'inherit' });
     });
 
@@ -68,6 +70,7 @@ describe('run', () =>
         {
             if (name === 'json-file-path') return './test.json';
             if (name === 'example-app') return 'exampleApp';
+            if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
             if (name === 'build-script') return 'build_script.sh';
             if (name === 'output-directory') return 'out/test';
 
@@ -89,6 +92,7 @@ describe('run', () =>
         {
             if (name === 'json-file-path') return './test.json';
             if (name === 'example-app') return 'exampleApp';
+            if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
             if (name === 'build-script') return 'build_script.sh';
             if (name === 'output-directory') return 'out/test';
         });
@@ -118,6 +122,7 @@ describe('run', () =>
         {
             if (name === 'json-file-path') return './test.json';
             if (name === 'example-app') return 'exampleApp';
+            if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
             if (name === 'build-script') return 'build_script.sh';
             if (name === 'output-directory') return 'out/test';
         });
@@ -147,6 +152,7 @@ describe('run', () =>
         {
             if (name === 'json-file-path') return './test.json';
             if (name === 'example-app') return 'exampleApp';
+            if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
             if (name === 'build-script') return 'build_script.sh';
             if (name === 'output-directory') return 'out/test';
         });
@@ -187,6 +193,7 @@ describe('run', () =>
         {
             if (name === 'json-file-path') return './test.json';
             if (name === 'example-app') return 'exampleApp';
+            if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
             if (name === 'build-script') return 'build_script.sh';
             if (name === 'output-directory') return 'out/test';
         });
@@ -207,6 +214,7 @@ describe('run', () =>
         expect(core.getInput).toHaveBeenCalledWith('example-app');
         expect(core.getInput).toHaveBeenCalledWith('build-script');
         expect(core.getInput).toHaveBeenCalledWith('output-directory');
+        expect(core.getInput).toHaveBeenCalledWith('path-to-example-app');
         expect(execSync).toHaveBeenCalledWith('build_script.sh examples/exampleApp/silabs out/test defaultBoard defaultArg1 defaultArg2', { stdio: 'inherit' });
         expect(execSync).toHaveBeenCalledWith('build_script.sh examples/exampleApp/silabs out/test board1 arg1 arg2', { stdio: 'inherit' });
     });
@@ -226,6 +234,7 @@ describe('run', () =>
         {
             if (name === 'json-file-path') return './test.json';
             if (name === 'example-app') return 'exampleApp';
+            if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
             if (name === 'build-script') return 'build_script.sh';
             if (name === 'output-directory') return 'out/test';
         });
@@ -246,6 +255,7 @@ describe('run', () =>
         expect(core.getInput).toHaveBeenCalledWith('example-app');
         expect(core.getInput).toHaveBeenCalledWith('build-script');
         expect(core.getInput).toHaveBeenCalledWith('output-directory');
+        expect(core.getInput).toHaveBeenCalledWith('path-to-example-app');
 
         expect(execSync).toHaveBeenCalledWith('build_script.sh examples/exampleApp/silabs out/test defaultBoard defaultArg1 defaultArg2', { stdio: 'inherit' });
         
@@ -261,6 +271,7 @@ describe('run', () =>
         {
             if (name === 'json-file-path') return './test.json';
             if (name === 'example-app') return 'exampleApp';
+            if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
             if (name === 'build-script') return 'build_script.sh';
             if (name === 'output-directory') return 'out/test';
         });
@@ -276,6 +287,7 @@ describe('run', () =>
         expect(core.getInput).toHaveBeenCalledWith('example-app');
         expect(core.getInput).toHaveBeenCalledWith('build-script');
         expect(core.getInput).toHaveBeenCalledWith('output-directory');
+        expect(core.getInput).toHaveBeenCalledWith('path-to-example-app');
         expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Action failed with error: No build information found for exampleApp'));
     });
 });

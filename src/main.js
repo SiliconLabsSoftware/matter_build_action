@@ -32,6 +32,7 @@ function readFileAsync(path, encoding)
 async function run() 
 {
     let exampleApp;
+    let pathToExampleApp;
     let jsonData;
     let buildScript;
     let outputDirectory;
@@ -42,6 +43,7 @@ async function run()
     try 
     {
         exampleApp = core.getInput('example-app');
+        pathToExampleApp = core.getInput('path-to-example-app');
         buildScript = core.getInput('build-script');
         outputDirectory = core.getInput('output-directory');
 
@@ -71,7 +73,7 @@ async function run()
                 } = info;
                 boards.forEach(board => 
                 {
-                    const command = `${buildScript} examples/${exampleApp}/silabs ${outputDirectory} ${board} ${args.join(' ')}`;
+                    const command = `${buildScript} ${pathToExampleApp} ${outputDirectory} ${board} ${args.join(' ')}`;
                     commands.push(command);
                 });
             });
@@ -98,7 +100,7 @@ async function run()
                 } = info;
                 boards.forEach(board => 
                 {
-                    const command = `${buildScript} examples/${exampleApp}/silabs ${outputDirectory} ${board} ${args.join(' ')}`;
+                    const command = `${buildScript} ${pathToExampleApp} ${outputDirectory} ${board} ${args.join(' ')}`;
                     commands.push(command);
                 });
             });

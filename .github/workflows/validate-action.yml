@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
@@ -25,4 +25,5 @@ jobs:
         with:
           json-file-path: "__tests__/test.json"
           example-app: "sample-app-1"
+          path-to-example-app: "path/to/sample-app-1"
           build-script: "__tests__/build_script.sh"
