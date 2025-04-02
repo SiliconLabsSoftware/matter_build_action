@@ -17,7 +17,7 @@
             }
         ]        
     },
-    "sqa": {
+    "custom-sqa": {
         "default": [
             {
                 "boards": ["board1"],

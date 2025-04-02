@@ -25791,7 +25791,7 @@ async function run()
     let stepCounter = 1;
     
     let buildType;
-    const supportedBuildTypes = ["standard", "full", "sqa", "release"]; // Supported build types
+    const supportedBuildTypes = ["standard", "full", "custom-sqa", "release"]; // Supported build types
 
     // Step 1: Process GitHub Action inputs
     core.startGroup(`Step ${stepCounter++}: Read and parse github action inputs.`);

@@ -96,7 +96,7 @@ describe('run', () =>
 
         await expect(run()).resolves.not.toThrow();
         
-        expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Invalid build type: invalid-type. Supported build types are: standard, full, sqa, release'));
+        expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Invalid build type: invalid-type. Supported build types are: standard, full, custom-sqa, release'));
     });
 
     it('should handle error when JsonParser throws an error', async () => 
