@@ -1,6 +1,7 @@
 const core = require('@actions/core');
 const fs = require('fs');
 const { execSync } = require('child_process');
+const { JsonParser } = require('./jsonParser'); // Import the new JsonParser class
 
 /**
  * Reads a file asynchronously.
@@ -27,7 +28,18 @@ function readFileAsync(path, encoding)
 }
 
 /**
+ * Logs and sets a failure message.
+ * @param {string} message - The failure message.
+ */
+function handleFailure(message) 
+{
+    core.setFailed(message);
+    console.error(message);
+}
+
+/**
  * Main function to run the GitHub Action.
+ * This function processes inputs, parses JSON data, generates build commands, and executes them.
  */
 async function run() 
 {
@@ -37,105 +49,76 @@ async function run()
     let buildScript;
     let outputDirectory;
     let stepCounter = 1;
+    
+    let buildType;
+    const supportedBuildTypes = ["standard", "full", "custom-sqa", "release"]; // Supported build types
 
-    // Process the github arguments and stores them
+    // Step 1: Process GitHub Action inputs
     core.startGroup(`Step ${stepCounter++}: Read and parse github action inputs.`);
     try 
     {
-        exampleApp = core.getInput('example-app');
-        pathToExampleApp = core.getInput('path-to-example-app');
-        buildScript = core.getInput('build-script');
-        outputDirectory = core.getInput('output-directory');
+        buildType = core.getInput('build-type', { required: true });
+        
+        // Validate build type
+        if (!supportedBuildTypes.includes(buildType)) 
+        {
+            handleFailure(`Invalid build type: ${buildType}. Supported build types are: ${supportedBuildTypes.join(', ')}`);
+            core.endGroup();
 
-        const filePath = core.getInput('json-file-path');
-        const data = await readFileAsync(filePath, 'utf8');
-        jsonData = JSON.parse(data);
+            return;
+        }
+
+        exampleApp = core.getInput('example-app', { required: true });
+        pathToExampleApp = core.getInput('path-to-example-app', { required: true });
+        buildScript = core.getInput('build-script', { required: true });
+        outputDirectory = core.getInput('output-directory', { required: true });
+        
+        const filePath = core.getInput('json-file-path', { required: true });
+        const data = await readFileAsync(filePath, 'utf8'); // Read JSON file
+        jsonData = JSON.parse(data); // Parse JSON data
     }
     catch (error) 
     {
-        core.setFailed(`Action failed with error: ${error}`);
-        console.error('Error reading or parsing JSON file:', error);
+        handleFailure(`Action failed with error: ${error}`);
     }
     core.endGroup();
 
-    // Builds the commands that need to be execute based on the provide inputs
+    // Step 2: Parse JSON and generate commands
     core.startGroup(`Step ${stepCounter++}: Parse JSON file to pull build information for the example-app.`);
     let commands = [];
-    try     
-    {   
-        const defaultBuildInfo = jsonData["default"]
-        if (defaultBuildInfo) 
-        {
-            defaultBuildInfo.forEach(info => 
-            {
-                const {
-                    boards, arguments: args 
-                } = info;
-                boards.forEach(board => 
-                {
-                    const command = `${buildScript} ${pathToExampleApp} ${outputDirectory} ${board} ${args.join(' ')}`;
-                    commands.push(command);
-                });
-            });
-        }
-        else
-        {
-            console.log('No default build information found.');
-            core.info('No default build information found.');
-        }
-
-        const buildInfo = jsonData[exampleApp];
-        if (!buildInfo && !defaultBuildInfo) 
-        {
-            console.error(`Action failed with error: No build information found for ${exampleApp}`);
-            core.setFailed(`Action failed with error: No build information found for ${exampleApp}`);
-        }
-
-        if(buildInfo)
-        {
-            buildInfo.forEach(info => 
-            {
-                const {
-                    boards, arguments: args 
-                } = info;
-                boards.forEach(board => 
-                {
-                    const command = `${buildScript} ${pathToExampleApp} ${outputDirectory} ${board} ${args.join(' ')}`;
-                    commands.push(command);
-                });
-            });
-        }
+    try 
+    {
+        // Use JsonParser class to parse JSON data and generate commands
+        const parser = new JsonParser(jsonData, buildType, exampleApp, buildScript, pathToExampleApp, outputDirectory);
+        commands = parser.generateCommands();
 
         core.info(`Commands to execute: ${JSON.stringify(commands)}`);
     }
     catch (error) 
     {
-        core.setFailed(`Action failed with error: ${error}`);
-        console.error('Error parsing build information:', error);
+        handleFailure(`Action failed with error: ${error.message}`);
     }
     core.endGroup();
 
-    // Runs each generated command in their own step
+    // Step 3: Execute each command
     for (const command of commands) 
     {   
         core.startGroup(`Step ${stepCounter++}: Executing ${command}`);
         try 
         {
             execSync(command, {
-                stdio: 'inherit' 
+                stdio: 'inherit' // Inherit stdio to display command output
             });
         }
         catch (error) 
         {
-            core.setFailed(`Build script failed with error: ${error.message}`);
-            console.error('Error executing command:', command, error);
+            handleFailure(`Build script failed with error: ${error.message}`);
             core.endGroup();
                 
             return;
         }
         core.endGroup();
     }
-    
 }
 
 module.exports = { run };
