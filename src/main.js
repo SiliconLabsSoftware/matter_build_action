@@ -1,6 +1,6 @@
 const core = require('@actions/core');
 const fs = require('fs');
-const { execSync } = require('child_process');
+const { exec } = require('child_process'); // Replace execSync with exec
 const { JsonParser } = require('./jsonParser'); // Import the new JsonParser class
 
 /**
@@ -46,20 +46,28 @@ function handleFailure(message)
 async function executeCommandWithGroup(command, stepCounter) 
 {
     core.startGroup(`Step ${stepCounter}: Executing command: ${command}`);
-    try 
+    
+    return new Promise((resolve, reject) => 
     {
-        execSync(command, {
-            stdio: 'inherit' // Inherit stdio to display command output
+        const process = exec(command, { stdio: 'inherit' }, (error) => 
+        {
+            if (error) 
+            {
+                reject(new Error(`Command "${command}" failed with error: ${error.message}`));
+            }
+            else 
+            {
+                resolve();
+            }
         });
-    }
-    catch (error) 
-    {
-        throw new Error(`Command "${command}" failed with error: ${error.message}`);
-    }
-    finally 
+
+        // Pipe output to the console
+        process.stdout?.pipe(process.stdout);
+        process.stderr?.pipe(process.stderr);
+    }).finally(() => 
     {
         core.endGroup();
-    }
+    });
 }
 
 /**
@@ -129,14 +137,20 @@ async function run()
     core.startGroup(`Step ${stepCounter++}: Execute commands in individual runners.`);
     try 
     {
+        // Ensure commands are executed in parallel
         await Promise.all(
-            commands.map((command, index) =>
-                executeCommandWithGroup(command, stepCounter + index).catch((error) => 
+            commands.map(async (command, index) => 
+            {
+                try 
+                {
+                    await executeCommandWithGroup(command, stepCounter + index);
+                }
+                catch (error) 
                 {
                     handleFailure(error.message);
                     throw error; // Stop further execution on failure
-                })
-            )
+                }
+            })
         );
     }
     catch (error) 
