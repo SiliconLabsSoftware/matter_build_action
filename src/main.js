@@ -38,6 +38,31 @@ function handleFailure(message)
 }
 
 /**
+ * Executes a command in a separate runner with logging groups.
+ * @param {string} command - The command to execute.
+ * @param {number} stepCounter - The current step counter for logging.
+ * @returns {Promise<void>} A promise that resolves when the command completes.
+ */
+async function executeCommandWithGroup(command, stepCounter) 
+{
+    core.startGroup(`Step ${stepCounter}: Executing command: ${command}`);
+    try 
+    {
+        execSync(command, {
+            stdio: 'inherit' // Inherit stdio to display command output
+        });
+    }
+    catch (error) 
+    {
+        throw new Error(`Command "${command}" failed with error: ${error.message}`);
+    }
+    finally 
+    {
+        core.endGroup();
+    }
+}
+
+/**
  * Main function to run the GitHub Action.
  * This function processes inputs, parses JSON data, generates build commands, and executes them.
  */
@@ -100,25 +125,28 @@ async function run()
     }
     core.endGroup();
 
-    // Step 3: Execute each command
-    for (const command of commands) 
-    {   
-        core.startGroup(`Step ${stepCounter++}: Executing ${command}`);
-        try 
-        {
-            execSync(command, {
-                stdio: 'inherit' // Inherit stdio to display command output
-            });
-        }
-        catch (error) 
-        {
-            handleFailure(`Build script failed with error: ${error.message}`);
-            core.endGroup();
-                
-            return;
-        }
-        core.endGroup();
+    // Step 3: Execute each command in individual runners with logging groups
+    core.startGroup(`Step ${stepCounter++}: Execute commands in individual runners.`);
+    try 
+    {
+        await Promise.all(
+            commands.map((command, index) =>
+                executeCommandWithGroup(command, stepCounter + index).catch((error) => 
+                {
+                    handleFailure(error.message);
+                    throw error; // Stop further execution on failure
+                })
+            )
+        );
     }
+    catch (error) 
+    {
+        handleFailure(`Build script failed with error: ${error.message}`);
+        core.endGroup();
+        
+        return;
+    }
+    core.endGroup();
 }
 
 module.exports = { run };
