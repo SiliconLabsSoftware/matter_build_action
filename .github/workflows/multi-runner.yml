@@ -1,0 +1,50 @@
+name: Multi-Runner Workflow
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-commands:
+    runs-on: ubuntu-latest
+    outputs:
+      commands: ${{ steps.set-commands.outputs.commands }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run main.js to generate commands
+        id: set-commands
+        run: |
+          node src/main.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  execute-commands:
+    needs: generate-commands
+    strategy:
+      matrix:
+        command: ${{ fromJson(needs.generate-commands.outputs.commands) }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Execute command
+        run: ${{ matrix.command }}
+
+      - name: Upload binary
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.command }}
+          path: ./output/binary-${{ matrix.command }} # Adjust path to match your binary output
+
+  merge-binaries:
+    needs: execute-commands
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge binaries
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: merged-binary
+          patterns: binary-* # Matches all uploaded binary artifacts

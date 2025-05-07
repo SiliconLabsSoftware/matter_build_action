@@ -72,7 +72,7 @@ async function executeCommandWithGroup(command, stepCounter)
 
 /**
  * Main function to run the GitHub Action.
- * This function processes inputs, parses JSON data, generates build commands, and executes them.
+ * This function processes inputs, parses JSON data, generates build commands, and outputs them.
  */
 async function run() 
 {
@@ -133,32 +133,15 @@ async function run()
     }
     core.endGroup();
 
-    // Step 3: Execute each command in individual runners with logging groups
-    core.startGroup(`Step ${stepCounter++}: Execute commands in individual runners.`);
+    // Step 3: Output commands as JSON for the workflow
+    core.startGroup(`Step ${stepCounter++}: Output commands for GitHub workflow.`);
     try 
     {
-        // Ensure commands are executed in parallel
-        await Promise.all(
-            commands.map(async (command, index) => 
-            {
-                try 
-                {
-                    await executeCommandWithGroup(command, stepCounter + index);
-                }
-                catch (error) 
-                {
-                    handleFailure(error.message);
-                    throw error; // Stop further execution on failure
-                }
-            })
-        );
+        core.setOutput('commands', JSON.stringify(commands));
     }
     catch (error) 
     {
-        handleFailure(`Build script failed with error: ${error.message}`);
-        core.endGroup();
-        
-        return;
+        handleFailure(`Failed to output commands: ${error.message}`);
     }
     core.endGroup();
 }
