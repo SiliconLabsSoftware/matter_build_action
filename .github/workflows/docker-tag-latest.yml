@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - .github/workflows/tag_latest.yml
+      - .github/workflows/docker-tag-latest.yml
 jobs:
   tag-latest-matter-extension-dependencies-image:
     runs-on: ubuntu-latest
