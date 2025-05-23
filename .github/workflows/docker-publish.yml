@@ -1,0 +1,35 @@
+name: Publish Docker
+on:
+  push:
+    paths:
+      - '.github/workflows/publish.yml'
+      - 'docker/Dockerfile'
+jobs:
+  publish-efr32-image:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v2
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set version variable
+        run: |
+          SISDK_Tag=2024.12.1
+          WiFI_SDK_Tag=3.4.1
+          Extra_info=""
+          VERSION="SiSDKv${SISDK_Tag}_WiFi_SDKv${WiFI_SDK_Tag}${Extra_info}"
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+      - name: Build the matter_extension_dependencies Docker image
+        run: |
+          docker build -f Integrations/docker/images/Dockerfile . --tag ghcr.io/siliconlabssoftware/matter_extension_dependencies:${{ env.VERSION }}
+          docker run ghcr.io/siliconlabssoftware/matter_extension_dependencies:${{ env.VERSION }}
+          docker push ghcr.io/siliconlabssoftware/matter_extension_dependencies:${{ env.VERSION }}
+          
