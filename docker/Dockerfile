@@ -68,7 +68,7 @@ RUN wget https://corretto.aws/downloads/resources/17.0.8.8.1/amazon-corretto-17.
 # Final SDK container for compiling using Silabs SDK
 FROM ghcr.io/project-chip/chip-build:${VERSION}
 
-ADD requirements.txt /tmp/requirements.txt
+ADD docker/requirements.txt /tmp/requirements.txt
 
 # Keep GSDK_ROOT name until rename transition to SISDK is completed
 ENV GSDK_ROOT=/opt/silabs/simplicity_sdk/
