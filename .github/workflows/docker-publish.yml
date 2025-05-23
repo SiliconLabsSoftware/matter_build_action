@@ -3,7 +3,7 @@ on:
   push:
     paths:
       - '.github/workflows/docker-publish.yml'
-      - 'docker/Dockerfile'
+      - 'docker/*'
 jobs:
   publish-matter-extension-dependencies-image:
     runs-on: ubuntu-latest
