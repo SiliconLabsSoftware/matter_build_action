@@ -5,7 +5,7 @@ on:
     paths:
       - .github/workflows/tag_latest.yml
 jobs:
-  tag-latest-efr32-image:
+  tag-latest-matter-extension-dependencies-image:
     runs-on: ubuntu-latest
     permissions:
       packages: write

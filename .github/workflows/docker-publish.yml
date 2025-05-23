@@ -5,7 +5,7 @@ on:
       - '.github/workflows/publish.yml'
       - 'docker/Dockerfile'
 jobs:
-  publish-efr32-image:
+  publish-matter-extension-dependencies-image:
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -29,7 +29,7 @@ jobs:
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
       - name: Build the matter_extension_dependencies Docker image
         run: |
-          docker build -f Integrations/docker/images/Dockerfile . --tag ghcr.io/siliconlabssoftware/matter_extension_dependencies:${{ env.VERSION }}
+          docker build -f docker/Dockerfile . --tag ghcr.io/siliconlabssoftware/matter_extension_dependencies:${{ env.VERSION }}
           docker run ghcr.io/siliconlabssoftware/matter_extension_dependencies:${{ env.VERSION }}
           docker push ghcr.io/siliconlabssoftware/matter_extension_dependencies:${{ env.VERSION }}
           
