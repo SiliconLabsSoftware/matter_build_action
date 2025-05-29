@@ -30,11 +30,8 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Set VERSION manually
-        run: echo "VERSION=SiSDKv2024.12.1_WiFi_SDKv3.4.1" >> $GITHUB_ENV
 
-            # Set version variable for the image tag, error if not set
+      # Set version variable for the image tag, error if not set
       - name: Set version variable
         run: |
           if [ -z "${VERSION}" ]; then
@@ -45,7 +42,7 @@ jobs:
             exit 1
           fi
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          
+
       # Pull, tag as latest, and push the Docker image
       - name: Tag and push latest Docker image
         run: |
