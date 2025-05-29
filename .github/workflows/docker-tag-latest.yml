@@ -30,16 +30,19 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Set VERSION manually
+        run: echo "VERSION=SiSDKv2024.12.1_WiFi_SDKv3.4.1" >> $GITHUB_ENV
 
       # Set version variable for the image tag, error if not set
       - name: Set version variable
         run: |
-          if [ -z "${{ github.event.inputs.version }}" ]; then
-            echo "ERROR: version input is required."
+          VERSION="${{ github.event.inputs.version }}"
+          if [ -z "$VERSION" ]; then
+            echo "ERROR: VERSION must be set via workflow input or manually."
             exit 1
           fi
-          echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
-
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
       # Pull, tag as latest, and push the Docker image
       - name: Tag and push latest Docker image
         run: |
