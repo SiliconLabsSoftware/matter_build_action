@@ -1,24 +1,30 @@
 # Set build argument for base image version
 ARG VERSION=latest
+ARG SISDK_Tag
+ARG WiFI_SDK_Tag
 
 # Stage 1: Build dependencies and download SDKs/tools
 FROM ghcr.io/project-chip/chip-build:${VERSION} AS build
 LABEL org.opencontainers.image.source https://github.com/project-chip/connectedhomeip
 
+# Accept build arguments in this stage
+ARG SISDK_Tag
+ARG WiFI_SDK_Tag
+
 # Install required packages for cloning and extracting SDKs
 RUN set -x \
     && apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -fy --no-install-recommends \
-        git \
-        git-lfs \
-        zip \
-        tar \
+    git \
+    git-lfs \
+    zip \
+    tar \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/ \
     && : # last line
 
-# Download and extract Simplicity SDK v2024.12.1 (da661283f3), remove unused protocols
-RUN wget https://github.com/SiliconLabs/simplicity_sdk/releases/download/v2024.12.1-0/simplicity-sdk.zip -O /tmp/simplicity_sdk.zip \
+# Download and extract Simplicity SDK using SISDK_Tag, remove unused protocols
+RUN wget https://github.com/SiliconLabs/simplicity_sdk/releases/download/${SISDK_Tag}/simplicity-sdk.zip -O /tmp/simplicity_sdk.zip \
     && unzip /tmp/simplicity_sdk.zip -d /tmp/simplicity_sdk \
     && rm -rf /tmp/simplicity_sdk.zip \
     && rm -rf /tmp/simplicity_sdk/protocol/flex /tmp/simplicity_sdk/protocol/z-wave /tmp/simplicity_sdk/protocol/wisun \
@@ -30,9 +36,9 @@ RUN git clone --depth=1 --single-branch --branch=2.11.4 https://github.com/Silic
     && cd /tmp/wiseconnect-wifi-bt-sdk \
     && rm -rf .git \
     && : # last line
-    
-# Clone WiSeConnect SDK v3.4.1 (f675628e)
-RUN git clone --depth=1 --single-branch --branch=v3.4.1 https://github.com/SiliconLabs/wiseconnect.git /tmp/wifi_sdk \
+
+# Clone WiSeConnect SDK using WiFI_SDK_Tag
+RUN git clone --depth=1 --single-branch --branch=${WiFI_SDK_Tag} https://github.com/SiliconLabs/wiseconnect.git /tmp/wifi_sdk \
     && cd /tmp/wifi_sdk \
     && rm -rf .git \
     && : # last line
@@ -49,9 +55,9 @@ RUN wget https://www.silabs.com/documents/public/software/SimplicityCommander-Li
     && rm ./SimplicityCommander-Linux.zip \
     && FILE=$(find /tmp/simplicity-commander -name "*Commander_linux_x86_64*") \
     && if [ -n "$FILE" ]; then \
-        tar -xjvf "$FILE" -C /tmp/simplicity-commander; \
+    tar -xjvf "$FILE" -C /tmp/simplicity-commander; \
     else \
-        echo "File not found"; \
+    echo "File not found"; \
     fi \
     && : # last line
 

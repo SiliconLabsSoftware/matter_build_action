@@ -34,11 +34,9 @@ jobs:
       # Set version variable for the image tag, error if not set
       - name: Set version variable
         run: |
-          if [ -z "${VERSION}" ]; then
-            VERSION="${{ github.event.inputs.version }}"
-          fi
+          VERSION="${{ github.event.inputs.version }}"
           if [ -z "$VERSION" ]; then
-            echo "ERROR: VERSION must be set via workflow input or manually."
+            echo "ERROR: VERSION must be set via workflow input"
             exit 1
           fi
           echo "VERSION=$VERSION" >> $GITHUB_ENV
