@@ -34,15 +34,18 @@ jobs:
       - name: Set VERSION manually
         run: echo "VERSION=SiSDKv2024.12.1_WiFi_SDKv3.4.1" >> $GITHUB_ENV
 
-      # Set version variable for the image tag, error if not set
+            # Set version variable for the image tag, error if not set
       - name: Set version variable
         run: |
-          VERSION="${{ github.event.inputs.version }}"
+          if [ -z "${VERSION}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          fi
           if [ -z "$VERSION" ]; then
             echo "ERROR: VERSION must be set via workflow input or manually."
             exit 1
           fi
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+          
       # Pull, tag as latest, and push the Docker image
       - name: Tag and push latest Docker image
         run: |
