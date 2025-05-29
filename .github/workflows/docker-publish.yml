@@ -1,0 +1,42 @@
+name: Publish Docker
+
+on:
+  push:
+    paths:
+      - '.github/workflows/docker-publish.yml'
+      - 'docker/*'
+
+jobs:
+  publish-matter-extension-dependencies-image:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+    steps:
+      # Checkout repository
+      - uses: actions/checkout@v4
+
+      # Login to GitHub Container Registry
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Set version variable for tagging the image by reading from docker/version file
+      - name: Read and print version from docker/version file
+        run: |
+          SISDK_Tag=$(grep '^SISDK_Tag=' docker/version | cut -d'=' -f2)
+          WiFI_SDK_Tag=$(grep '^WiFI_SDK_Tag=' docker/version | cut -d'=' -f2)
+          VERSION="SiSDK${SISDK_Tag}_WiFi_SDK${WiFI_SDK_Tag}"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Parsed VERSION: $VERSION"
+      
+      # Call docker/build.sh and pass version as an argument
+      - name: Build and push Docker image
+        run: |
+          chmod +x docker/build.sh
+          ./docker/build.sh --tag "$VERSION"
