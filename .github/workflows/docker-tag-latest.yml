@@ -2,6 +2,11 @@ name: Tag Latest Docker
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to tag as latest'
+        required: true
+        default: ''
   push:
     paths:
       - .github/workflows/docker-tag-latest.yml
@@ -26,9 +31,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Set version variable for the image tag
+      # Set version variable for the image tag, error if not set
       - name: Set version variable
-        run: echo "VERSION=SiSDKv2024.12.1_WiFi_SDKv3.4.1" >> $GITHUB_ENV
+        run: |
+          if [ -z "${{ github.event.inputs.version }}" ]; then
+            echo "ERROR: version input is required."
+            exit 1
+          fi
+          echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
 
       # Pull, tag as latest, and push the Docker image
       - name: Tag and push latest Docker image
