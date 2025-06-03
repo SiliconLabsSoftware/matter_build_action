@@ -6,10 +6,6 @@ on:
       version:
         description: 'Version to tag as latest'
         required: true
-        default: ''
-  push:
-    paths:
-      - .github/workflows/docker-tag-latest.yml
 
 jobs:
   tag-latest-matter-extension-dependencies-image:
