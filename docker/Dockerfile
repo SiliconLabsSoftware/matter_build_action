@@ -23,6 +23,9 @@ RUN set -x \
     && rm -rf /var/lib/apt/lists/ \
     && : # last line
 
+# Set UTF-8 locale to ensure unzip handles non-ASCII filenames correctly
+ENV LANG=C.UTF-8
+
 # Download and extract Simplicity SDK using SISDK_Tag, remove unused protocols
 RUN wget https://github.com/SiliconLabs/simplicity_sdk/releases/download/${SISDK_Tag}/simplicity-sdk.zip -O /tmp/simplicity_sdk.zip \
     && unzip /tmp/simplicity_sdk.zip -d /tmp/simplicity_sdk \
