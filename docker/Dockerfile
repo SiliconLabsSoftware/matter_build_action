@@ -24,7 +24,12 @@ RUN set -x \
     && : # last line
 
 # Download and extract Simplicity SDK using SISDK_Tag, remove unused protocols
-RUN wget --timeout=600 --tries=2 https://github.com/SiliconLabs/simplicity_sdk/releases/download/${SISDK_Tag}/simplicity-sdk.zip -O /tmp/simplicity_sdk.zip \
+RUN wget https://github.com/SiliconLabs/simplicity_sdk/releases/download/${SISDK_Tag}/simplicity-sdk.zip -O /tmp/simplicity_sdk.zip \
+    && echo "=== Download complete ===" \
+    && ls -lh /tmp/simplicity_sdk.zip \
+    && echo "=== Disk space before unzip ===" \
+    && df -h \
+    && echo "=== Starting unzip ===" \
     && unzip /tmp/simplicity_sdk.zip -d /tmp/simplicity_sdk \
     && rm -rf /tmp/simplicity_sdk.zip \
     && rm -rf /tmp/simplicity_sdk/protocol/flex /tmp/simplicity_sdk/protocol/z-wave /tmp/simplicity_sdk/protocol/wisun \
