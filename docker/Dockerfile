@@ -71,8 +71,8 @@ RUN wget https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/
     && rm -rf /tmp/arm-gnu-toolchain.tar.xz \
     && : # last line
 
-# Download and extract Amazon Corretto Java 17
-RUN wget https://corretto.aws/downloads/resources/17.0.8.8.1/amazon-corretto-17.0.8.8.1-linux-x64.tar.gz -O /tmp/java.tar.gz \
+# Download and extract Amazon Corretto Java 21
+RUN wget https://corretto.aws/downloads/resources/21.0.7.6.1/amazon-corretto-21.0.7.6.1-linux-x64.tar.gz -O /tmp/java.tar.gz \
     && tar -xzf /tmp/java.tar.gz -C /tmp \
     && rm /tmp/java.tar.gz \
     && ls /tmp \
@@ -90,10 +90,10 @@ ENV SISDK_ROOT=/opt/silabs/simplicity_sdk/
 ENV WISECONNECT_SDK_ROOT=/opt/silabs/wiseconnect-wifi-bt-sdk/
 ENV WISECONNECT3_DIR=${SISDK_ROOT}/extension/wiseconnect
 ENV ARM_GCC_DIR=/opt/arm-gcc
-ENV JAVA17_HOME=/opt/silabs/amazon-corretto-17.0.8.8.1-linux-x64
+ENV JAVA21_HOME=/opt/silabs/amazon-corretto-21.0.7.6.1-linux-x64
 ENV PATH="${PATH}:/opt/silabs/slc_cli/"
 ENV PATH="${PATH}:${ARM_GCC_DIR}/bin"
-ENV PATH="${PATH}:${JAVA17_HOME}/bin"
+ENV PATH="${PATH}:${JAVA21_HOME}/bin"
 ENV POST_BUILD_EXE=/opt/silabs/simplicity-commander/commander/commander
 
 # Copy SDKs and tools from build stage to final image
@@ -103,4 +103,4 @@ COPY --from=build /tmp/wifi_sdk ${WISECONNECT3_DIR}
 COPY --from=build /tmp/slc_cli /opt/silabs/slc_cli
 COPY --from=build /tmp/simplicity-commander /opt/silabs/simplicity-commander
 COPY --from=build /tmp/arm-gnu-toolchain-* ${ARM_GCC_DIR}
-COPY --from=build /tmp/amazon-corretto-17.0.8.8.1-linux-x64 ${JAVA17_HOME}
+COPY --from=build /tmp/amazon-corretto-21.0.7.6.1-linux-x64 ${JAVA21_HOME}
