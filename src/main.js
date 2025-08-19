@@ -9,18 +9,13 @@ const { JsonParser } = require('./jsonParser'); // Import the new JsonParser cla
  * @param {string} encoding - The encoding of the file.
  * @returns {Promise<string>} A promise that resolves with the file content.
  */
-function readFileAsync(path, encoding) 
-{
-    return new Promise((resolve, reject) => 
-    {
-        fs.readFile(path, encoding, (err, data) =>  
-        {
-            if (err) 
-            {
+function readFileAsync(path, encoding) {
+    return new Promise((resolve, reject) => {
+        fs.readFile(path, encoding, (err, data) => {
+            if (err) {
                 reject(err);
             }
-            else 
-            {
+            else {
                 resolve(data);
             }
         });
@@ -31,8 +26,7 @@ function readFileAsync(path, encoding)
  * Logs and sets a failure message.
  * @param {string} message - The failure message.
  */
-function handleFailure(message) 
-{
+function handleFailure(message) {
     core.setFailed(message);
     console.error(message);
 }
@@ -41,27 +35,24 @@ function handleFailure(message)
  * Main function to run the GitHub Action.
  * This function processes inputs, parses JSON data, generates build commands, and executes them.
  */
-async function run() 
-{
+async function run() {
     let exampleApp;
     let pathToExampleApp;
     let jsonData;
     let buildScript;
     let outputDirectory;
     let stepCounter = 1;
-    
+
     let buildType;
     const supportedBuildTypes = ["standard", "full", "custom-sqa", "release"]; // Supported build types
 
     // Step 1: Process GitHub Action inputs
     core.startGroup(`Step ${stepCounter++}: Read and parse github action inputs.`);
-    try 
-    {
+    try {
         buildType = core.getInput('build-type', { required: true });
-        
+
         // Validate build type
-        if (!supportedBuildTypes.includes(buildType)) 
-        {
+        if (!supportedBuildTypes.includes(buildType)) {
             handleFailure(`Invalid build type: ${buildType}. Supported build types are: ${supportedBuildTypes.join(', ')}`);
             core.endGroup();
 
@@ -72,13 +63,12 @@ async function run()
         pathToExampleApp = core.getInput('path-to-example-app', { required: true });
         buildScript = core.getInput('build-script', { required: true });
         outputDirectory = core.getInput('output-directory', { required: true });
-        
+
         const filePath = core.getInput('json-file-path', { required: true });
         const data = await readFileAsync(filePath, 'utf8'); // Read JSON file
         jsonData = JSON.parse(data); // Parse JSON data
     }
-    catch (error) 
-    {
+    catch (error) {
         handleFailure(`Action failed with error: ${error}`);
     }
     core.endGroup();
@@ -86,35 +76,39 @@ async function run()
     // Step 2: Parse JSON and generate commands
     core.startGroup(`Step ${stepCounter++}: Parse JSON file to pull build information for the example-app.`);
     let commands = [];
-    try 
-    {
+    try {
         // Use JsonParser class to parse JSON data and generate commands
         const parser = new JsonParser(jsonData, buildType, exampleApp, buildScript, pathToExampleApp, outputDirectory);
         commands = parser.generateCommands();
 
+        // Check if any commands were generated
+        if (commands.length === 0) {
+            core.setOutput('should-skip', 'true');
+            core.info('No build commands generated. Setting should-skip to true.');
+            core.endGroup();
+            return;
+        }
+
         core.info(`Commands to execute: ${JSON.stringify(commands)}`);
+        core.setOutput('should-skip', 'false');
     }
-    catch (error) 
-    {
+    catch (error) {
         handleFailure(`Action failed with error: ${error.message}`);
     }
     core.endGroup();
 
     // Step 3: Execute each command
-    for (const command of commands) 
-    {   
+    for (const command of commands) {
         core.startGroup(`Step ${stepCounter++}: Executing ${command}`);
-        try 
-        {
+        try {
             execSync(command, {
                 stdio: 'inherit' // Inherit stdio to display command output
             });
         }
-        catch (error) 
-        {
+        catch (error) {
             handleFailure(`Build script failed with error: ${error.message}`);
             core.endGroup();
-                
+
             return;
         }
         core.endGroup();

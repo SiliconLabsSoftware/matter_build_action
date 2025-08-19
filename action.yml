@@ -1,27 +1,31 @@
-name: 'Run GN example build'
-description: 'Build Silabs example app using the GN build system based on the provided arguments'
-author: 'Silicon Labs'
+name: "Run GN example build"
+description: "Build Silabs example app using the GN build system based on the provided arguments"
+author: "Silicon Labs"
 
 inputs:
   example-app:
-    description: 'Example app name to build'
+    description: "Example app name to build"
     required: true
   path-to-example-app:
-    description: 'Path to the example app directory to be built'
+    description: "Path to the example app directory to be built"
     required: true
   json-file-path:
-    description: 'JSON content to be used as GN args'
+    description: "JSON content to be used as GN args"
     required: true
   build-script:
-    description: 'Build script to be executed for the provided example app'
+    description: "Build script to be executed for the provided example app"
     required: true
   output-directory:
-    description: 'Output directory for the build artifacts'
+    description: "Output directory for the build artifacts"
     required: true
   build-type:
-    description: 'Type of build to be executed'
+    description: "Type of build to be executed"
     required: true
 
+outputs:
+  should-skip:
+    description: "Indicates if the build should be skipped due to validation failures or missing configuration"
+
 runs:
-  using: 'node20'
+  using: "node20"
   main: dist/index.js
