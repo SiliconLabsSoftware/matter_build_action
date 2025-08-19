@@ -170,4 +170,32 @@ describe('run', () =>
         
         expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Action failed with error: Error: readFileAsync error'));
     });
+
+    it('should set should-skip to true when no commands are generated', async () => 
+    {
+        core.getInput = jest.fn((name) => 
+        {
+            if (name === 'json-file-path') return './test.json';
+            if (name === 'example-app') return 'exampleApp';
+            if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
+            if (name === 'build-script') return 'build_script.sh';
+            if (name === 'output-directory') return 'out/test';
+            if (name === 'build-type') return 'standard';
+        });
+
+        fs.readFile = jest.fn((path, encoding, callback) => 
+        {
+            callback(null, JSON.stringify({ standard: { default: [] } }));
+        });
+
+        // Mock JsonParser to return empty commands array
+        JsonParser.mockImplementation(() => ({
+            generateCommands: jest.fn(() => []) // Return empty array
+        }));
+
+        await expect(run()).resolves.not.toThrow();
+        
+        expect(core.setOutput).toHaveBeenCalledWith('should-skip', 'true');
+        expect(core.info).toHaveBeenCalledWith('No build commands generated. Setting should-skip to true.');
+    });
 });
