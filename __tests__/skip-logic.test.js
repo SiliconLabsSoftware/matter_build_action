@@ -6,11 +6,12 @@ const { JsonParser } = require('../src/jsonParser');
 jest.mock('@actions/core');
 jest.mock('fs');
 jest.mock('../src/jsonParser');
+jest.mock('child_process');
 
 describe('Skip Logic Tests', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        
+
         // Setup default mocks
         core.setOutput = jest.fn();
         core.setFailed = jest.fn();
@@ -20,7 +21,7 @@ describe('Skip Logic Tests', () => {
         core.getInput = jest.fn();
     });
 
-    test('should set should-skip to true when commands array is empty', async () => {
+    it('should set should-skip to true when commands array is empty', async () => {
         // Setup inputs
         core.getInput.mockImplementation((name) => {
             const inputs = {
@@ -31,6 +32,7 @@ describe('Skip Logic Tests', () => {
                 'build-script': 'build.sh',
                 'output-directory': '/output'
             };
+
             return inputs[name] || '';
         });
 
@@ -50,7 +52,7 @@ describe('Skip Logic Tests', () => {
         expect(core.info).toHaveBeenCalledWith('No build commands generated. Setting should-skip to true.');
     });
 
-    test('should set should-skip to false when commands array has items', async () => {
+    it('should set should-skip to false when commands array has items', async () => {
         // Setup inputs
         core.getInput.mockImplementation((name) => {
             const inputs = {
@@ -61,22 +63,21 @@ describe('Skip Logic Tests', () => {
                 'build-script': 'build.sh',
                 'output-directory': '/output'
             };
+
             return inputs[name] || '';
         });
 
         // Mock file reading
         fs.readFile = jest.fn((path, encoding, callback) => {
-            callback(null, JSON.stringify({ 
-                standard: { 
-                    default: [{ boards: ['board1'], arguments: ['arg1'] }] 
-                } 
+            callback(null, JSON.stringify({
+                standard: {
+                    default: [{
+                        boards: ['board1'], arguments: ['arg1']
+                    }]
+                }
             }));
         });
 
-        // Mock child_process execSync
-        const { execSync } = require('child_process');
-        jest.mock('child_process');
-        
         // Mock JsonParser to return commands
         JsonParser.mockImplementation(() => ({
             generateCommands: jest.fn(() => ['build.sh /path/to/example /output board1 arg1'])
