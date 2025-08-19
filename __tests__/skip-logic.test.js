@@ -8,8 +8,10 @@ jest.mock('fs');
 jest.mock('../src/jsonParser');
 jest.mock('child_process');
 
-describe('Skip Logic Tests', () => {
-    beforeEach(() => {
+describe('Skip Logic Tests', () => 
+{
+    beforeEach(() => 
+    {
         jest.clearAllMocks();
 
         // Setup default mocks
@@ -21,9 +23,11 @@ describe('Skip Logic Tests', () => {
         core.getInput = jest.fn();
     });
 
-    it('should set should-skip to true when commands array is empty', async () => {
+    it('should set should-skip to true when commands array is empty', async () => 
+    {
         // Setup inputs
-        core.getInput.mockImplementation((name) => {
+        core.getInput.mockImplementation((name) => 
+        {
             const inputs = {
                 'build-type': 'standard',
                 'example-app': 'lighting-app',
@@ -37,7 +41,8 @@ describe('Skip Logic Tests', () => {
         });
 
         // Mock file reading
-        fs.readFile = jest.fn((path, encoding, callback) => {
+        fs.readFile = jest.fn((path, encoding, callback) => 
+        {
             callback(null, JSON.stringify({ standard: { default: [] } }));
         });
 
@@ -52,9 +57,11 @@ describe('Skip Logic Tests', () => {
         expect(core.info).toHaveBeenCalledWith('No build commands generated. Setting should-skip to true.');
     });
 
-    it('should set should-skip to false when commands array has items', async () => {
+    it('should set should-skip to false when commands array has items', async () => 
+    {
         // Setup inputs
-        core.getInput.mockImplementation((name) => {
+        core.getInput.mockImplementation((name) => 
+        {
             const inputs = {
                 'build-type': 'standard',
                 'example-app': 'lighting-app',
@@ -68,7 +75,8 @@ describe('Skip Logic Tests', () => {
         });
 
         // Mock file reading
-        fs.readFile = jest.fn((path, encoding, callback) => {
+        fs.readFile = jest.fn((path, encoding, callback) => 
+        {
             callback(null, JSON.stringify({
                 standard: {
                     default: [{
