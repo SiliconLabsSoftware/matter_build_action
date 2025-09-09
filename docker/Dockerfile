@@ -65,10 +65,6 @@ ENV PATH="${PATH}:${ARM_GCC_DIR}/bin"
 ENV PATH="${PATH}:${JAVA21_HOME}/bin"
 ENV POST_BUILD_EXE=/opt/silabs/simplicity-commander/commander/commander
 
-# Copy SDKs and tools from build stage to final image
-COPY --from=build /tmp/simplicity_sdk ${SISDK_ROOT}
-COPY --from=build /tmp/wiseconnect-wifi-bt-sdk/ ${WISECONNECT_SDK_ROOT}
-COPY --from=build /tmp/wifi_sdk ${WISECONNECT3_DIR}
 COPY --from=build /tmp/slc_cli /opt/silabs/slc_cli
 COPY --from=build /tmp/simplicity-commander /opt/silabs/simplicity-commander
 COPY --from=build /tmp/arm-gnu-toolchain-* ${ARM_GCC_DIR}
