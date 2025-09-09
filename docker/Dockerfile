@@ -52,7 +52,7 @@ FROM ghcr.io/project-chip/chip-build:${VERSION}
 # Add Python requirements
 ADD docker/requirements.txt /tmp/requirements.txt
 
-ENV MATTER_ROOT=/opt/matter_extension
+ENV MATTER_ROOT=/opt/silabs/matter_extension
 # Set environment variables for SDKs and tools
 ENV GSDK_ROOT=$MATTER_ROOT/third_party/simplicity_sdk/
 ENV SISDK_ROOT=$MATTER_ROOT/third_party/simplicity_sdk/
@@ -69,3 +69,4 @@ COPY --from=build /tmp/slc_cli /opt/silabs/slc_cli
 COPY --from=build /tmp/simplicity-commander /opt/silabs/simplicity-commander
 COPY --from=build /tmp/arm-gnu-toolchain-* ${ARM_GCC_DIR}
 COPY --from=build /tmp/amazon-corretto-21.0.7.6.1-linux-x64 ${JAVA21_HOME}
+COPY --from=build /opt/matter_extension ${MATTER_ROOT}
