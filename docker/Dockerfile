@@ -1,50 +1,18 @@
-# Set build argument for base image version
-ARG VERSION=latest
-ARG SISDK_Tag
-ARG WiFI_SDK_Tag
-
 # Stage 1: Build dependencies and download SDKs/tools
+ARG VERSION=latest
+
 FROM ghcr.io/project-chip/chip-build:${VERSION} AS build
 LABEL org.opencontainers.image.source https://github.com/project-chip/connectedhomeip
+# Allow overriding the matter_extension repository and ref at build time for reproducibility
+ARG MATTER_EXTENSION_REPO=https://github.com/SiliconLabsSoftware/matter_extension.git
+ARG MATTER_EXTENSION_REF=main
 
-# Accept build arguments in this stage
-ARG SISDK_Tag
-ARG WiFI_SDK_Tag
-
-# Install required packages for cloning and extracting SDKs
-RUN set -x \
-    && apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -fy --no-install-recommends \
-    git \
-    git-lfs \
-    zip \
-    tar \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/ \
-    && : # last line
-
-# Set UTF-8 locale to ensure unzip handles non-ASCII filenames correctly
-# util/third_party/ot-br-posix/third_party/cpp-httplib/repo/test/www/#U65e5#U672c#U8a9eDir/#U65e5#U672c#U8a9eFile.txt
-ENV LANG=C.UTF-8
-
-# Download and extract Simplicity SDK using SISDK_Tag, remove unused protocols
-RUN wget https://github.com/SiliconLabs/simplicity_sdk/releases/download/${SISDK_Tag}/simplicity-sdk.zip -O /tmp/simplicity_sdk.zip \
-    && unzip /tmp/simplicity_sdk.zip -d /tmp/simplicity_sdk \
-    && rm -rf /tmp/simplicity_sdk.zip \
-    && rm -rf /tmp/simplicity_sdk/protocol/flex /tmp/simplicity_sdk/protocol/z-wave /tmp/simplicity_sdk/protocol/wisun \
-    && find /tmp/simplicity_sdk/protocol/openthread -name "*efr32mg21*" -delete \
-    && : # last line
-
-# Clone WiSeConnect Wi-Fi and Bluetooth Software 2.11.4 (bf6b600)
-RUN git clone --depth=1 --single-branch --branch=2.11.4 https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk.git /tmp/wiseconnect-wifi-bt-sdk \
-    && cd /tmp/wiseconnect-wifi-bt-sdk \
-    && rm -rf .git \
-    && : # last line
-
-# Clone WiSeConnect SDK using WiFI_SDK_Tag
-RUN git clone --depth=1 --single-branch --branch=${WiFI_SDK_Tag} https://github.com/SiliconLabs/wiseconnect.git /tmp/wifi_sdk \
-    && cd /tmp/wifi_sdk \
-    && rm -rf .git \
+# Clone matter_extension (shallow) and initialize submodules recursively, then create deterministic symlink
+RUN git clone --depth 1 --branch ${MATTER_EXTENSION_REF} ${MATTER_EXTENSION_REPO} /opt/matter_extension \
+    && git -C /opt/matter_extension submodule update --init \
+    && mkdir -p /opt/matter_extension/third_party/simplicity_sdk/extension \
+    && ln -sfn /opt/matter_extension /opt/matter_extension/third_party/simplicity_sdk/extension/matter_extension \
+    && ln -sfn /opt/matter_extension/third_party/wifi_sdk /opt/matter_extension/third_party/simplicity_sdk/extension/wifi_sdk \
     && : # last line
 
 # Download and extract SLC CLI
@@ -84,10 +52,11 @@ FROM ghcr.io/project-chip/chip-build:${VERSION}
 # Add Python requirements
 ADD docker/requirements.txt /tmp/requirements.txt
 
+ENV MATTER_ROOT=/opt/silabs/matter_extension
 # Set environment variables for SDKs and tools
-ENV GSDK_ROOT=/opt/silabs/simplicity_sdk/
-ENV SISDK_ROOT=/opt/silabs/simplicity_sdk/
-ENV WISECONNECT_SDK_ROOT=/opt/silabs/wiseconnect-wifi-bt-sdk/
+ENV GSDK_ROOT=$MATTER_ROOT/third_party/simplicity_sdk/
+ENV SISDK_ROOT=$MATTER_ROOT/third_party/simplicity_sdk/
+ENV WISECONNECT_SDK_ROOT=$MATTER_ROOT/third_party/wiseconnect-wifi-bt-sdk/
 ENV WISECONNECT3_DIR=${SISDK_ROOT}/extension/wiseconnect
 ENV ARM_GCC_DIR=/opt/arm-gcc
 ENV JAVA21_HOME=/opt/silabs/amazon-corretto-21.0.7.6.1-linux-x64
@@ -96,11 +65,8 @@ ENV PATH="${PATH}:${ARM_GCC_DIR}/bin"
 ENV PATH="${PATH}:${JAVA21_HOME}/bin"
 ENV POST_BUILD_EXE=/opt/silabs/simplicity-commander/commander/commander
 
-# Copy SDKs and tools from build stage to final image
-COPY --from=build /tmp/simplicity_sdk ${SISDK_ROOT}
-COPY --from=build /tmp/wiseconnect-wifi-bt-sdk/ ${WISECONNECT_SDK_ROOT}
-COPY --from=build /tmp/wifi_sdk ${WISECONNECT3_DIR}
 COPY --from=build /tmp/slc_cli /opt/silabs/slc_cli
 COPY --from=build /tmp/simplicity-commander /opt/silabs/simplicity-commander
 COPY --from=build /tmp/arm-gnu-toolchain-* ${ARM_GCC_DIR}
 COPY --from=build /tmp/amazon-corretto-21.0.7.6.1-linux-x64 ${JAVA21_HOME}
+COPY --from=build /opt/matter_extension ${MATTER_ROOT}
