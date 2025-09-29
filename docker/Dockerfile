@@ -35,8 +35,8 @@ RUN wget https://github.com/SiliconLabs/simplicity_sdk/releases/download/${SISDK
     && find /tmp/simplicity_sdk/protocol/openthread -name "*efr32mg21*" -delete \
     && : # last line
 
-# Clone WiSeConnect Wi-Fi and Bluetooth Software 2.11.4 (bf6b600)
-RUN git clone --depth=1 --single-branch --branch=2.11.4 https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk.git /tmp/wiseconnect-wifi-bt-sdk \
+# Clone WiSeConnect Wi-Fi and Bluetooth Software 2.12.0 (7dc7686)
+RUN git clone --depth=1 --single-branch --branch=2.12.0 https://github.com/SiliconLabs/wiseconnect-wifi-bt-sdk.git /tmp/wiseconnect-wifi-bt-sdk \
     && cd /tmp/wiseconnect-wifi-bt-sdk \
     && rm -rf .git \
     && : # last line
@@ -48,7 +48,7 @@ RUN git clone --depth=1 --single-branch --branch=${WiFI_SDK_Tag} https://github.
     && : # last line
 
 # Download and extract SLC CLI
-RUN wget https://www.silabs.com/documents/login/software/slc_cli_linux.zip \
+RUN wget https://www.silabs.com/documents/public/software/slc_cli_linux.zip \
     && unzip ./slc_cli_linux.zip -d /tmp \
     && rm ./slc_cli_linux.zip \
     && : # last line
