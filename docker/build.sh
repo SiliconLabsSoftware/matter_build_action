@@ -29,7 +29,11 @@ fi
 # Example TAG: SiSDKv2024.12.1-0.de_WiFi_SDKv3.4.1
 # Extract SISDK_Tag and WiFI_SDK_Tag from TAG
 SISDK_Tag=$(echo "$TAG" | sed -n 's/^SiSDK\([^_]*\)_WiFi_SDK.*$/\1/p')
-WiFI_SDK_Tag=$(echo "$TAG" | sed -n 's/^SiSDK[^_]*_WiFi_SDK\(.*\)$/\1/p')
+WiFI_SDK_Tag=$(echo "$TAG" | sed -n 's/^SiSDK[^_]*_WiFi_SDK\(.*\)$/\1/p') 
+ARM_GCC_Tag="v14.2.rel1"
+
+# Append ARM GCC version to TAG
+TAG="${TAG}_ARM_GCC${ARM_GCC_Tag}"
 
 if [[ -z "$SISDK_Tag" || -z "$WiFI_SDK_Tag" ]]; then
   echo "ERROR: Could not parse SISDK_Tag or WiFI_SDK_Tag from version tag: $TAG"
