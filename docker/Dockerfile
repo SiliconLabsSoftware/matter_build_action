@@ -65,8 +65,8 @@ RUN wget https://www.silabs.com/documents/public/software/SimplicityCommander-Li
     fi \
     && : # last line
 
-# Download and extract ARM GCC toolchain v12.2.rel1
-RUN wget https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-eabi.tar.xz -O /tmp/arm-gnu-toolchain.tar.xz \
+# Download and extract ARM GCC toolchain v14.2.rel1
+RUN wget https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz -O /tmp/arm-gnu-toolchain.tar.xz \
     && tar -xJvf /tmp/arm-gnu-toolchain.tar.xz -C /tmp \
     && rm -rf /tmp/arm-gnu-toolchain.tar.xz \
     && : # last line
