@@ -39,6 +39,11 @@ permissions:
 jobs:
   cla:
     runs-on: ${{ inputs.runner }}
+    if: |
+       github.event_name != 'pull_request' && github.event_name != 'pull_request_target' ||
+       (github.event.pull_request.user.login != 'dependabot[bot]' &&
+        github.event.pull_request.user.login != 'silabs-matter-ci-bot' &&
+        github.event.pull_request.user.login != 'miduggan24')
     steps:
       - name: Create CLA Assistant Lite bot token
         id: app-token
