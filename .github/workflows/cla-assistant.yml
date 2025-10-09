@@ -8,6 +8,11 @@ on:
 
 jobs:
   CLAAssistant:
+    if: |
+       github.event_name != 'pull_request' && github.event_name != 'pull_request_target' ||
+       (github.event.pull_request.user.login != 'dependabot[bot]' &&
+        github.event.pull_request.user.login != 'silabs-matter-ci-bot' &&
+        github.event.pull_request.user.login != 'miduggan24')
     uses: ./.github/workflows/cla.yml
     secrets:
       CLA_APP_ID: ${{ secrets.SILABSIN_CLA_BOT_APP_IDD }}
