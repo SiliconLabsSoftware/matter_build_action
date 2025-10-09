@@ -14,3 +14,4 @@ jobs:
       CLA_APP_PRIVATE_KEY: ${{ secrets.SILABSIN_CLA_BOT_APP_PRIVATE_KEY }}
     with:
       remote_org: "SiliconLabsInternal"
+      allowlist: silabs-*,bot*,miduggan24
