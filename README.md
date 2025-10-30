@@ -25,7 +25,7 @@ To use this action, include it in your workflow YAML file.
 | `json-file-path`      | JSON content to be used as GN args                                                       |
 | `build-script`        | Build script to be executed for the provided example app                                 |
 | `output-directory`    | Output directory for the build artifacts                                                 |
-| `build-type`          | Defines which build type to use from the json file (standard, full, custom-sqa, release) |
+| `build-type`          | Defines which build type to use from the json file (standard, full, custom-sqa) |
 
 ## Outputs
 
@@ -105,7 +105,7 @@ act --container-architecture linux/amd64 -W .github/workflows/eslint-check.yml
 
 The JSON file used by this action supports a flexible structure to define build configurations.
 It allows you to specify default builds that apply to all example apps, as well as builds specific to individual example apps.
-Additionally, the JSON structure supports multiple build types (e.g., `standard`, `custom-sqa`, `release` and `full`).
+Additionally, the JSON structure supports multiple build types (e.g., `standard`, `custom-sqa`, and `full`).
 
 The JSON file should follow this structure:
 
@@ -115,13 +115,15 @@ The JSON file should follow this structure:
     "default": [
       {
         "boards": ["defaultBoard1", "defaultBoard2"],
-        "arguments": ["defaultArg1", "defaultArg2"]
+        "arguments": ["defaultArg1", "defaultArg2"],
+        "projectFileType": "slcw"
       }
     ],
     "exampleApp1": [
       {
         "boards": ["board1", "board2"],
-        "arguments": ["arg1", "arg2"]
+        "arguments": ["arg1", "arg2"],
+        "projectFileType": "slcp"
       }
     ]
   },
@@ -135,7 +137,8 @@ The JSON file should follow this structure:
     "exampleApp2": [
       {
         "boards": ["board3"],
-        "arguments": ["arg3"]
+        "arguments": ["arg3"],
+        "projectFileType": "slcw"
       }
     ]
   }
@@ -144,15 +147,17 @@ The JSON file should follow this structure:
 
 ### Explanation
 
-- **`buildType1`, `buildType2`, etc.**: Represents different build types (e.g., `standard`, `custom-sqa`, `release` or `full`). Each build type contains its own set of configurations.
+- **`buildType1`, `buildType2`, etc.**: Represents different build types (e.g., `standard`, `custom-sqa`, or `full`). Each build type contains its own set of configurations.
 - **`default`**: Contains build configurations that apply to all example apps for the given build type. Each object in the array specifies:
 
   - `boards`: A list of board names for which the build should be executed.
   - `arguments`: A list of arguments to pass to the build script.
+  - `projectFileType` (optional): Specifies the project file type to use ("slcp" for application-only or "slcw" for solution with bootloader). Defaults to "slcw" if not specified.
 
 - **`exampleApp1`, `exampleApp2`, etc.**: Keys representing specific example apps. Each key contains an array of build configurations specific to that app. Each object in the array specifies:
   - `boards`: A list of board names for which the build should be executed.
   - `arguments`: A list of arguments to pass to the build script.
+  - `projectFileType` (optional): Specifies the project file type to use ("slcp" for application-only or "slcw" for solution with bootloader). Defaults to "slcw" if not specified.
 
 ### Example
 
@@ -170,7 +175,8 @@ For the following JSON structure:
     "sample-app-1": [
       {
         "boards": ["board1", "board2"],
-        "arguments": ["arg1", "arg2"]
+        "arguments": ["arg1", "arg2"],
+        "projectFileType": "slcp"
       }
     ]
   },
@@ -184,7 +190,8 @@ For the following JSON structure:
     "sample-app-2": [
       {
         "boards": ["board4"],
-        "arguments": ["arg4"]
+        "arguments": ["arg4", "--lto"],
+        "projectFileType": "slcp"
       }
     ]
   }
@@ -193,11 +200,11 @@ For the following JSON structure:
 
 - The `standard` build type will:
 
-  - Run the `default` configuration for `board1` with `arg1` and `arg2`.
-  - Run the `sample-app-1` configuration for `board1` and `board2` with `arg1` and `arg2`.
+  - Run the `default` configuration for `board1` with `arg1` and `arg2` using `.slcw` files (default).
+  - Run the `sample-app-1` configuration for `board1` and `board2` with `arg1` and `arg2` using `.slcp` files.
 
 - The `custom-sqa` build type will:
-  - Run the `default` configuration for `board3` with `arg3`.
-  - Run the `sample-app-2` configuration for `board4` with `arg4`.
+  - Run the `default` configuration for `board3` with `arg3` using `.slcw` files (default).
+  - Run the `sample-app-2` configuration for `board4` with `arg4` and `--lto` using `.slcp` files.
 
 This structure provides flexibility to define builds for multiple build types and example apps while maintaining default configurations.

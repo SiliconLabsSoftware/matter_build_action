@@ -123,4 +123,96 @@ describe('JsonParser', () =>
             'build.sh /path/to/example /output board2 arg2'
         ]);
     });
+
+    it('should resolve template with projectFileType', () => 
+    {
+        const mockJsonDataWithTemplate = {
+            standard: {
+                exampleApp1: [
+                    {
+                        boards: ['board1'],
+                        arguments: ['arg1'],
+                        "projectFileType": "slcp"
+                    }
+                ]
+            }
+        };
+
+        const pathToExampleWithTemplate = '/path/to/example.{{projectFileType}}';
+        const parser = new JsonParser(mockJsonDataWithTemplate, 'standard', 'exampleApp1', buildScript, pathToExampleWithTemplate, outputDirectory);
+        const commands = parser.generateCommands();
+        expect(commands).toEqual([
+            'build.sh /path/to/example.slcp /output board1 arg1'
+        ]);
+    });
+
+    it('should handle mixed projectFileType configurations in default and specific builds', () => 
+    {
+        const mockJsonDataMixed = {
+            standard: {
+                default: [
+                    {
+                        boards: ['board1'],
+                        arguments: ['arg1'],
+                        "projectFileType": "slcp"
+                    }
+                ],
+                exampleApp1: [
+                    {
+                        boards: ['board2'],
+                        arguments: ['arg2']
+                        // No projectFileType specified (should use default .slcw)
+                    },
+                    {
+                        boards: ['board3'],
+                        arguments: ['arg3'],
+                        "projectFileType": "slcp"
+                    }
+                ]
+            }
+        };
+
+        const pathToExampleWithTemplate = '/path/to/example.{{projectFileType}}';
+        const parser = new JsonParser(mockJsonDataMixed, 'standard', 'exampleApp1', buildScript, pathToExampleWithTemplate, outputDirectory);
+        const commands = parser.generateCommands();
+        expect(commands).toEqual([
+            'build.sh /path/to/example.slcp /output board1 arg1',
+            'build.sh /path/to/example.slcw /output board2 arg2',
+            'build.sh /path/to/example.slcp /output board3 arg3'
+        ]);
+    });
+
+    it('should handle template with mixed projectFileTypes', () => 
+    {
+        const mockJsonDataMixed = {
+            standard: {
+                exampleApp1: [
+                    {
+                        boards: ['board1'],
+                        arguments: ['arg1'],
+                        "projectFileType": "slcp"
+                    },
+                    {
+                        boards: ['board2'], 
+                        arguments: ['arg2'],
+                        "projectFileType": "slcw"
+                    },
+                    {
+                        boards: ['board3'],
+                        arguments: ['arg3']
+                        // No projectFileType specified (should default to slcw)
+                    }
+                ]
+            }
+        };
+
+        const pathToExampleWithTemplate = '/path/to/example.{{projectFileType}}';
+        const parser = new JsonParser(mockJsonDataMixed, 'standard', 'exampleApp1', buildScript, pathToExampleWithTemplate, outputDirectory);
+        const commands = parser.generateCommands();
+        expect(commands).toEqual([
+            'build.sh /path/to/example.slcp /output board1 arg1',
+            'build.sh /path/to/example.slcw /output board2 arg2',
+            'build.sh /path/to/example.slcw /output board3 arg3'
+        ]);
+    });
 });
