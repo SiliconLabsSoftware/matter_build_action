@@ -25694,11 +25694,12 @@ class JsonParser
             defaultBuildInfo.forEach(info => 
             {
                 const {
-                    boards, arguments: args 
+                    boards, arguments: args, projectFileType
                 } = info;
                 boards.forEach(board => 
                 {
-                    const command = `${this.#buildScript} ${this.#pathToExampleApp} ${this.#outputDirectory} ${board} ${args.join(' ')}`;
+                    const pathToExample = this.#resolvePathTemplate(projectFileType);
+                    const command = `${this.#buildScript} ${pathToExample} ${this.#outputDirectory} ${board} ${args.join(' ')}`;
                     commands.push(command);
                 });
             });
@@ -25716,17 +25717,32 @@ class JsonParser
             buildInfo.forEach(info => 
             {
                 const {
-                    boards, arguments: args 
+                    boards, arguments: args, projectFileType
                 } = info;
                 boards.forEach(board => 
                 {
-                    const command = `${this.#buildScript} ${this.#pathToExampleApp} ${this.#outputDirectory} ${board} ${args.join(' ')}`;
+                    const pathToExample = this.#resolvePathTemplate(projectFileType);
+                    const command = `${this.#buildScript} ${pathToExample} ${this.#outputDirectory} ${board} ${args.join(' ')}`;
                     commands.push(command);
                 });
             });
         }
 
         return commands;
+    }
+
+    /**
+     * Resolves path template with project file type.
+     * @param {string} projectFileType - The project file type ("slcp" or "slcw").
+     * @returns {string} The resolved path with template variables substituted.
+     */
+    #resolvePathTemplate(projectFileType) 
+    {
+        // Default to "slcw" 
+        const fileType = projectFileType || "slcw";
+        
+        // Substitute template variables in the path
+        return this.#pathToExampleApp.replace(/\{\{projectFileType\}\}/g, fileType);
     }
 }
 
