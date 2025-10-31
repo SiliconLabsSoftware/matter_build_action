@@ -25,7 +25,8 @@ jobs:
         with:
           json-file-path: "__tests__/test.json"
           example-app: "sample-app-1"
-          path-to-example-app: "path/to/sample-app-1"
+          slcp-path: "path/to/sample-app-1.slcp"
+          slcw-path: "path/to/sample-app-1.slcw"
           build-script: "__tests__/build_script.sh"
           output-directory: "out/"
           build-type: "standard"
