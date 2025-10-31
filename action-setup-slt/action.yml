@@ -55,6 +55,7 @@ runs:
         curl ${SLT_URL} --output /tmp/${SLT_PKG_NAME}
         mkdir -p $HOME/.local/bin
         unzip /tmp/${SLT_PKG_NAME} -d $HOME/.local/bin
+        chmod +x $HOME/.local/bin/slt
         rm /tmp/${SLT_PKG_NAME}
         echo "$HOME/.local/bin" >> $GITHUB_PATH
         echo "SLT_CI=true" >> $GITHUB_ENV
