@@ -10,17 +10,19 @@ class JsonParser
      * @param {string} buildType - The type of build (e.g., "standard", "full").
      * @param {string} exampleApp - The name of the example app to build.
      * @param {string} buildScript - The build script to execute.
-     * @param {string} pathToExampleApp - The path to the example app.
      * @param {string} outputDirectory - The directory to store build outputs.
+     * @param {string} slcpPath - Specific path for .slcp files.
+     * @param {string} slcwPath - Specific path for .slcw files.
      */
-    constructor(jsonData, buildType, exampleApp, buildScript, pathToExampleApp, outputDirectory) 
+    constructor(jsonData, buildType, exampleApp, buildScript, outputDirectory, slcpPath, slcwPath) 
     {
         this.#jsonData = jsonData;
         this.#buildType = buildType;
         this.#exampleApp = exampleApp;
         this.#buildScript = buildScript;
-        this.#pathToExampleApp = pathToExampleApp;
         this.#outputDirectory = outputDirectory;
+        this.#slcpPath = slcpPath;
+        this.#slcwPath = slcwPath;
     }
 
     // Private members
@@ -28,8 +30,9 @@ class JsonParser
     #buildType;
     #exampleApp;
     #buildScript;
-    #pathToExampleApp;
     #outputDirectory;
+    #slcpPath;
+    #slcwPath;
 
     /**
      * Generates a list of build commands based on the JSON data.
@@ -92,17 +95,20 @@ class JsonParser
     }
 
     /**
-     * Resolves path template with project file type.
+     * Resolves path based on project file type using separate paths.
      * @param {string} projectFileType - The project file type ("slcp" or "slcw").
-     * @returns {string} The resolved path with template variables substituted.
+     * @returns {string} The resolved path for the specified file type.
      */
     #resolvePathTemplate(projectFileType) 
     {
         // Default to "slcw" 
         const fileType = projectFileType || "slcw";
         
-        // Substitute template variables in the path
-        return this.#pathToExampleApp.replace(/\{\{projectFileType\}\}/g, fileType);
+        if (fileType === 'slcp') {
+            return this.#slcpPath;
+        } else {
+            return this.#slcwPath;
+        }
     }
 }
 

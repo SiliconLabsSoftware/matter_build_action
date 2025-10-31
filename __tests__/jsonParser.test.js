@@ -20,23 +20,24 @@ describe('JsonParser', () =>
     };
 
     const buildScript = 'build.sh';
-    const pathToExampleApp = '/path/to/example';
     const outputDirectory = '/output';
+    const slcpPath = '/path/to/example.slcp';
+    const slcwPath = '/path/to/example.slcw';
 
     it('should generate commands for default build type', () => 
     {
-        const parser = new JsonParser(mockJsonData, 'standard', 'exampleApp1', buildScript, pathToExampleApp, outputDirectory);
+        const parser = new JsonParser(mockJsonData, 'standard', 'exampleApp1', buildScript, outputDirectory, slcpPath, slcwPath);
         const commands = parser.generateCommands();
         expect(commands).toEqual([
-            'build.sh /path/to/example /output board1 arg1 arg2',
-            'build.sh /path/to/example /output board2 arg1 arg2',
-            'build.sh /path/to/example /output board3 arg3'
+            'build.sh /path/to/example.slcw /output board1 arg1 arg2',
+            'build.sh /path/to/example.slcw /output board2 arg1 arg2',
+            'build.sh /path/to/example.slcw /output board3 arg3'
         ]);
     });
 
     it('should throw an error if build type is missing', () => 
     {
-        const parser = new JsonParser(mockJsonData, 'nonexistent', 'exampleApp1', buildScript, pathToExampleApp, outputDirectory);
+        const parser = new JsonParser(mockJsonData, 'nonexistent', 'exampleApp1', buildScript, outputDirectory, slcpPath, slcwPath);
         expect(() => parser.generateCommands()).toThrow('No build type found for nonexistent');
     });
 
@@ -53,7 +54,7 @@ describe('JsonParser', () =>
             }
         };
 
-        const parser = new JsonParser(mockJsonDataNoDefault, 'standard', 'nonexistentApp', buildScript, pathToExampleApp, outputDirectory);
+        const parser = new JsonParser(mockJsonDataNoDefault, 'standard', 'nonexistentApp', buildScript, outputDirectory, slcpPath, slcwPath);
         expect(() => parser.generateCommands()).toThrow('No build information found for nonexistentApp');
     });
 
@@ -69,9 +70,9 @@ describe('JsonParser', () =>
                 ]
             }
         };
-        const parser = new JsonParser(modifiedJsonData, 'standard', 'nonexistentApp', buildScript, pathToExampleApp, outputDirectory);
+        const parser = new JsonParser(modifiedJsonData, 'standard', 'nonexistentApp', buildScript, outputDirectory, slcpPath, slcwPath);
         const commands = parser.generateCommands();
-        expect(commands).toEqual(['build.sh /path/to/example /output board1 arg1']);
+        expect(commands).toEqual(['build.sh /path/to/example.slcw /output board1 arg1']);
     });
 
     it('should throw an error if neither default nor specific build info exists', () => 
@@ -79,7 +80,7 @@ describe('JsonParser', () =>
         const emptyJsonData = {
             standard: {}
         };
-        const parser = new JsonParser(emptyJsonData, 'standard', 'exampleApp1', buildScript, pathToExampleApp, outputDirectory);
+        const parser = new JsonParser(emptyJsonData, 'standard', 'exampleApp1', buildScript, outputDirectory, slcpPath, slcwPath);
         expect(() => parser.generateCommands()).toThrow('No build information found for exampleApp1');
     });
 
@@ -116,11 +117,11 @@ describe('JsonParser', () =>
             }
         };
 
-        const parser = new JsonParser(multiBuildTypeJsonData, 'standard', 'exampleApp1', buildScript, pathToExampleApp, outputDirectory);
+        const parser = new JsonParser(multiBuildTypeJsonData, 'standard', 'exampleApp1', buildScript, outputDirectory, slcpPath, slcwPath);
         const commands = parser.generateCommands();
         expect(commands).toEqual([
-            'build.sh /path/to/example /output board1 arg1',
-            'build.sh /path/to/example /output board2 arg2'
+            'build.sh /path/to/example.slcw /output board1 arg1',
+            'build.sh /path/to/example.slcw /output board2 arg2'
         ]);
     });
 
@@ -138,9 +139,8 @@ describe('JsonParser', () =>
             }
         };
 
-        const pathToExampleWithTemplate = '/path/to/example.{{projectFileType}}';
-        const parser = new JsonParser(mockJsonDataWithTemplate, 'standard', 'exampleApp1', buildScript, pathToExampleWithTemplate, outputDirectory);
-        const commands = parser.generateCommands();
+        const parser = new JsonParser(mockJsonDataWithTemplate, 'standard', 'exampleApp1', buildScript, outputDirectory, slcpPath, slcwPath);
+        const commands = parser.generateCommands();  
         expect(commands).toEqual([
             'build.sh /path/to/example.slcp /output board1 arg1'
         ]);
@@ -172,8 +172,7 @@ describe('JsonParser', () =>
             }
         };
 
-        const pathToExampleWithTemplate = '/path/to/example.{{projectFileType}}';
-        const parser = new JsonParser(mockJsonDataMixed, 'standard', 'exampleApp1', buildScript, pathToExampleWithTemplate, outputDirectory);
+        const parser = new JsonParser(mockJsonDataMixed, 'standard', 'exampleApp1', buildScript, outputDirectory, slcpPath, slcwPath);
         const commands = parser.generateCommands();
         expect(commands).toEqual([
             'build.sh /path/to/example.slcp /output board1 arg1',
@@ -206,8 +205,7 @@ describe('JsonParser', () =>
             }
         };
 
-        const pathToExampleWithTemplate = '/path/to/example.{{projectFileType}}';
-        const parser = new JsonParser(mockJsonDataMixed, 'standard', 'exampleApp1', buildScript, pathToExampleWithTemplate, outputDirectory);
+        const parser = new JsonParser(mockJsonDataMixed, 'standard', 'exampleApp1', buildScript, outputDirectory, slcpPath, slcwPath);
         const commands = parser.generateCommands();
         expect(commands).toEqual([
             'build.sh /path/to/example.slcp /output board1 arg1',
@@ -215,4 +213,65 @@ describe('JsonParser', () =>
             'build.sh /path/to/example.slcw /output board3 arg3'
         ]);
     });
+
+    it('should handle separate slcp/slcw paths for thread platforms', () => {
+        const jsonData = {
+            "standard": {
+                "default": [
+                    {
+                        "boards": ["brd4187c"],
+                        "arguments": [""]
+                    },
+                    {
+                        "boards": ["brd4187c"],
+                        "arguments": [""],
+                        "projectFileType": "slcp"
+                    }
+                ]
+            }
+        };
+
+        const slcpPath = 'slc/apps/air-quality-sensor-app/thread/air-quality-sensor-app.slcp';
+        const slcwPath = 'slc/apps/air-quality-sensor-app/thread/air-quality-sensor-app-series-2-internal.slcw';
+        
+        const parser = new JsonParser(jsonData, 'standard', 'air-quality-sensor-app', buildScript, outputDirectory, slcpPath, slcwPath);
+        const commands = parser.generateCommands();
+
+        expect(commands).toHaveLength(2);
+        // First config has no projectFileType, defaults to .slcw, uses slcwPath
+        expect(commands[0]).toBe('build.sh slc/apps/air-quality-sensor-app/thread/air-quality-sensor-app-series-2-internal.slcw /output brd4187c ');
+        // Second config specifies .slcp, uses slcpPath
+        expect(commands[1]).toBe('build.sh slc/apps/air-quality-sensor-app/thread/air-quality-sensor-app.slcp /output brd4187c ');
+    });
+
+    it('should handle separate slcp/slcw paths for WiFi platforms', () => {
+        const jsonData = {
+            "standard": {
+                "default": [
+                    {
+                        "boards": ["brd4187c"],
+                        "arguments": [""],
+                        "projectFileType": "slcp"
+                    },
+                    {
+                        "boards": ["brd4187c"],
+                        "arguments": [""]
+                    }
+                ]
+            }
+        };
+
+        const slcpPath = 'slc/apps/thermostat/wifi/thermostat-917-ncp.slcp';
+        const slcwPath = 'slc/apps/thermostat/wifi/thermostat-917-ncp.slcw';
+        
+        const parser = new JsonParser(jsonData, 'standard', 'thermostat', buildScript, outputDirectory, slcpPath, slcwPath);
+        const commands = parser.generateCommands();
+
+        expect(commands).toHaveLength(2);
+        // For WiFi, both configs keep the same filename with different extensions
+        expect(commands[0]).toBe('build.sh slc/apps/thermostat/wifi/thermostat-917-ncp.slcp /output brd4187c ');
+        expect(commands[1]).toBe('build.sh slc/apps/thermostat/wifi/thermostat-917-ncp.slcw /output brd4187c ');
+    });
+
+
 });

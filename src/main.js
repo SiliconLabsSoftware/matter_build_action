@@ -44,11 +44,12 @@ function handleFailure(message)
 async function run() 
 {
     let exampleApp;
-    let pathToExampleApp;
     let jsonData;
     let buildScript;
     let outputDirectory;
     let stepCounter = 1;
+    let slcpPath;
+    let slcwPath;
     
     let buildType;
     const supportedBuildTypes = ["standard", "full", "custom-sqa", "release"]; // Supported build types
@@ -69,9 +70,12 @@ async function run()
         }
 
         exampleApp = core.getInput('example-app', { required: true });
-        pathToExampleApp = core.getInput('path-to-example-app', { required: true });
         buildScript = core.getInput('build-script', { required: true });
         outputDirectory = core.getInput('output-directory', { required: true });
+        
+        // Required separate paths for .slcp and .slcw files
+        slcpPath = core.getInput('slcp-path', { required: true });
+        slcwPath = core.getInput('slcw-path', { required: true });
         
         const filePath = core.getInput('json-file-path', { required: true });
         const data = await readFileAsync(filePath, 'utf8'); // Read JSON file
@@ -89,7 +93,7 @@ async function run()
     try 
     {
         // Use JsonParser class to parse JSON data and generate commands
-        const parser = new JsonParser(jsonData, buildType, exampleApp, buildScript, pathToExampleApp, outputDirectory);
+        const parser = new JsonParser(jsonData, buildType, exampleApp, buildScript, outputDirectory, slcpPath, slcwPath);
         commands = parser.generateCommands();
 
         core.info(`Commands to execute: ${JSON.stringify(commands)}`);

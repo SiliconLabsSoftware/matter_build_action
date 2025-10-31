@@ -6,9 +6,6 @@ inputs:
   example-app:
     description: 'Example app name to build'
     required: true
-  path-to-example-app:
-    description: 'Path to the example app directory to be built'
-    required: true
   json-file-path:
     description: 'JSON content to be used as GN args'
     required: true
@@ -20,6 +17,12 @@ inputs:
     required: true
   build-type:
     description: 'Type of build to be executed'
+    required: true
+  slcp-path:
+    description: 'Path for .slcp files'
+    required: true
+  slcw-path:
+    description: 'Path for .slcw files'
     required: true
 
 runs:

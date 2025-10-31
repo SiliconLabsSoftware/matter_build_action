@@ -25650,17 +25650,19 @@ class JsonParser
      * @param {string} buildType - The type of build (e.g., "standard", "full").
      * @param {string} exampleApp - The name of the example app to build.
      * @param {string} buildScript - The build script to execute.
-     * @param {string} pathToExampleApp - The path to the example app.
      * @param {string} outputDirectory - The directory to store build outputs.
+     * @param {string} slcpPath - Specific path for .slcp files.
+     * @param {string} slcwPath - Specific path for .slcw files.
      */
-    constructor(jsonData, buildType, exampleApp, buildScript, pathToExampleApp, outputDirectory) 
+    constructor(jsonData, buildType, exampleApp, buildScript, outputDirectory, slcpPath, slcwPath) 
     {
         this.#jsonData = jsonData;
         this.#buildType = buildType;
         this.#exampleApp = exampleApp;
         this.#buildScript = buildScript;
-        this.#pathToExampleApp = pathToExampleApp;
         this.#outputDirectory = outputDirectory;
+        this.#slcpPath = slcpPath;
+        this.#slcwPath = slcwPath;
     }
 
     // Private members
@@ -25668,8 +25670,9 @@ class JsonParser
     #buildType;
     #exampleApp;
     #buildScript;
-    #pathToExampleApp;
     #outputDirectory;
+    #slcpPath;
+    #slcwPath;
 
     /**
      * Generates a list of build commands based on the JSON data.
@@ -25732,17 +25735,20 @@ class JsonParser
     }
 
     /**
-     * Resolves path template with project file type.
+     * Resolves path based on project file type using separate paths.
      * @param {string} projectFileType - The project file type ("slcp" or "slcw").
-     * @returns {string} The resolved path with template variables substituted.
+     * @returns {string} The resolved path for the specified file type.
      */
     #resolvePathTemplate(projectFileType) 
     {
         // Default to "slcw" 
         const fileType = projectFileType || "slcw";
         
-        // Substitute template variables in the path
-        return this.#pathToExampleApp.replace(/\{\{projectFileType\}\}/g, fileType);
+        if (fileType === 'slcp') {
+            return this.#slcpPath;
+        } else {
+            return this.#slcwPath;
+        }
     }
 }
 
@@ -25800,11 +25806,12 @@ function handleFailure(message)
 async function run() 
 {
     let exampleApp;
-    let pathToExampleApp;
     let jsonData;
     let buildScript;
     let outputDirectory;
     let stepCounter = 1;
+    let slcpPath;
+    let slcwPath;
     
     let buildType;
     const supportedBuildTypes = ["standard", "full", "custom-sqa", "release"]; // Supported build types
@@ -25825,9 +25832,12 @@ async function run()
         }
 
         exampleApp = core.getInput('example-app', { required: true });
-        pathToExampleApp = core.getInput('path-to-example-app', { required: true });
         buildScript = core.getInput('build-script', { required: true });
         outputDirectory = core.getInput('output-directory', { required: true });
+        
+        // Required separate paths for .slcp and .slcw files
+        slcpPath = core.getInput('slcp-path', { required: true });
+        slcwPath = core.getInput('slcw-path', { required: true });
         
         const filePath = core.getInput('json-file-path', { required: true });
         const data = await readFileAsync(filePath, 'utf8'); // Read JSON file
@@ -25845,7 +25855,7 @@ async function run()
     try 
     {
         // Use JsonParser class to parse JSON data and generate commands
-        const parser = new JsonParser(jsonData, buildType, exampleApp, buildScript, pathToExampleApp, outputDirectory);
+        const parser = new JsonParser(jsonData, buildType, exampleApp, buildScript, outputDirectory, slcpPath, slcwPath);
         commands = parser.generateCommands();
 
         core.info(`Commands to execute: ${JSON.stringify(commands)}`);
