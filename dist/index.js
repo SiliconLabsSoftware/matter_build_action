@@ -25744,9 +25744,12 @@ class JsonParser
         // Default to "slcw" 
         const fileType = projectFileType || "slcw";
         
-        if (fileType === 'slcp') {
+        if (fileType === 'slcp') 
+        {
             return this.#slcpPath;
-        } else {
+        } 
+        else 
+        {
             return this.#slcwPath;
         }
     }

@@ -214,7 +214,8 @@ describe('JsonParser', () =>
         ]);
     });
 
-    it('should handle separate slcp/slcw paths for thread platforms', () => {
+    it('should handle separate slcp/slcw paths for Thread platforms', () =>
+    {
         const jsonData = {
             "standard": {
                 "default": [
@@ -244,7 +245,8 @@ describe('JsonParser', () =>
         expect(commands[1]).toBe('build.sh slc/apps/air-quality-sensor-app/thread/air-quality-sensor-app.slcp /output brd4187c ');
     });
 
-    it('should handle separate slcp/slcw paths for WiFi platforms', () => {
+    it('should handle separate slcp/slcw paths for WiFi platforms', () =>
+    {
         const jsonData = {
             "standard": {
                 "default": [
