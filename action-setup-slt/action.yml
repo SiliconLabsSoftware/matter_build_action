@@ -1,0 +1,102 @@
+name: Action to setup SLT
+description: This action installs SLT, conan_engine and conan
+author: Luis Thomas
+
+# Add your action's branding here. This will appear on the GitHub Marketplace.
+branding:
+  icon: heart
+  color: red
+
+# Define your inputs here.
+inputs:
+  install-conan:
+    description: Path to the conanfile.py file
+    type: boolean
+    required: false
+    default: true
+  use-unstable:
+    description: Use unstable SLT remote
+    type: boolean
+    required: false
+    default: false
+
+outputs:
+  slt-version:
+    description: The SLT version installed
+    value: ${{ steps.check-slt.outputs.slt-version }}
+  slt-path:
+    description: The path to the SLT executable
+    value: ${{ steps.check-slt.outputs.slt-path }}
+  conan-engine-version:
+    description: The conan_engine version installed
+    value: ${{ steps.install-conan.outputs.conan-engine-version }}
+  conan-engine-path:
+    description: The path to the conan_engine executable
+    value: ${{ steps.install-conan.outputs.conan-engine-path }}
+  conan-version:
+    description: The conan version installed
+    value: ${{ steps.install-conan.outputs.conan-version }}
+  conan-path:
+    description: The path to the conan executable
+    value: ${{ steps.install-conan.outputs.conan-path }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Check curl install
+      id: check-curl-install
+      run: |
+        curl --version
+      shell: bash
+
+    - name: Download slt from public url
+      id: download-slt
+      run: |
+        curl ${SLT_URL} --output /tmp/${SLT_PKG_NAME}
+        mkdir -p $HOME/.local/bin
+        unzip /tmp/${SLT_PKG_NAME} -d $HOME/.local/bin
+        rm /tmp/${SLT_PKG_NAME}
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        echo "SLT_CI=true" >> $GITHUB_ENV
+      shell: bash
+      env:
+        SLT_URL: https://www.silabs.com/documents/public/software/slt-cli-1.0.0-linux-x64.zip
+        SLT_PKG_NAME: slt-cli_linux_amd64.zip
+
+    - name: Check slt version and output slt path
+      id: check-slt
+      run: |
+        echo "slt-version=$(slt --version)" >> $GITHUB_OUTPUT
+        echo "slt-path=$(which slt)" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: install conan_engine and conan, also export CONAN_HOME in env
+      if: ${{ inputs.install-conan }}
+      id: install-conan
+      run: |
+        slt install foo --engine conan || true
+
+        # Define paths as variables
+        CONAN_ENGINE_PATH="$HOME/.silabs/slt/engines/conan/conan_engine"
+        CONAN_PATH="$HOME/.silabs/slt/engines/conan/conan/conan"
+        INSTALL_PATH="$HOME/.local/bin"
+
+        if [ -f "$CONAN_ENGINE_PATH" ]; then
+          ln -s "$CONAN_ENGINE_PATH" "$INSTALL_PATH/conan_engine"
+        else
+          echo "Error: conan_engine not found at $CONAN_ENGINE_PATH"
+          exit 1
+        fi
+        echo "conan-engine-version=$(conan_engine --version)" >> $GITHUB_OUTPUT
+        echo "conan-engine-path=$(which conan_engine)" >> $GITHUB_OUTPUT
+
+        if [ -f "$CONAN_PATH" ]; then
+          ln -s "$CONAN_PATH" "$INSTALL_PATH/conan"
+        else
+          echo "Error: conan not found at $CONAN_PATH"
+          exit 1
+        fi
+        echo "conan-version=$(conan --version)" >> $GITHUB_OUTPUT
+        echo "conan-path=$(which conan)" >> $GITHUB_OUTPUT
+        echo "CONAN_HOME=$HOME/.silabs/slt/installs/conan" >> $GITHUB_ENV
+      shell: bash
