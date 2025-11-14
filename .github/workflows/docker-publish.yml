@@ -17,7 +17,7 @@ on:
         required: false
         description: "Build the tools image"
         type: boolean
-        default: false
+        default: true
 
 jobs:
   publish-matter-extension-dependencies-image:
