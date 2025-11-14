@@ -3,7 +3,7 @@ ARG VERSION=latest
 
 # Stage 1: Build dependencies and download SDKs/tools
 FROM ghcr.io/project-chip/chip-build:${VERSION} AS build
-LABEL org.opencontainers.image.source https://github.com/project-chip/connectedhomeip
+LABEL org.opencontainers.image.source=https://github.com/project-chip/connectedhomeip
 
 # Install required packages for cloning and extracting SDKs
 RUN set -x \
@@ -47,17 +47,16 @@ RUN set -x \
     && CONAN_PATH="$HOME/.silabs/slt/engines/conan/conan/conan" \
     && INSTALL_PATH="$HOME/.local/bin" \
     && if [ -f "$CONAN_ENGINE_PATH" ]; then \
-    ln -s "$CONAN_ENGINE_PATH" "$INSTALL_PATH/conan_engine" \
+    ln -s "$CONAN_ENGINE_PATH" "$INSTALL_PATH/conan_engine"; \
     else \
-    echo "Error: conan_engine not found at $CONAN_ENGINE_PATH" \
-    exit 1 \
+    echo "Error: conan_engine not found at $CONAN_ENGINE_PATH" && exit 1; \
     fi \
     && echo "conan-engine-version=$(conan_engine --version)" \
     && echo "conan-engine-path=$(which conan_engine)" \
     && if [ -f "$CONAN_PATH" ]; then \
-    ln -s "$CONAN_PATH" "$INSTALL_PATH/conan" \
+    ln -s "$CONAN_PATH" "$INSTALL_PATH/conan"; \
     else \
-    echo "Error: conan not found at $CONAN_PATH" \
+    echo "Error: conan not found at $CONAN_PATH"; \
     fi \
     && echo "conan-version=$(conan --version)" \
     && echo "conan-path=$(which conan)" \
