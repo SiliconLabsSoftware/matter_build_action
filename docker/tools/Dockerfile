@@ -47,17 +47,17 @@ RUN set -x \
     && CONAN_PATH="$HOME/.silabs/slt/engines/conan/conan/conan" \
     && INSTALL_PATH="$HOME/.local/bin" \
     && if [ -f "$CONAN_ENGINE_PATH" ]; then \
-        ln -s "$CONAN_ENGINE_PATH" "$INSTALL_PATH/conan_engine" \
+    ln -s "$CONAN_ENGINE_PATH" "$INSTALL_PATH/conan_engine" \
     else \
-        echo "Error: conan_engine not found at $CONAN_ENGINE_PATH" \
-        exit 1 \
+    echo "Error: conan_engine not found at $CONAN_ENGINE_PATH" \
+    exit 1 \
     fi \
     && echo "conan-engine-version=$(conan_engine --version)" \
     && echo "conan-engine-path=$(which conan_engine)" \
     && if [ -f "$CONAN_PATH" ]; then \
-        ln -s "$CONAN_PATH" "$INSTALL_PATH/conan" \
+    ln -s "$CONAN_PATH" "$INSTALL_PATH/conan" \
     else \
-        echo "Error: conan not found at $CONAN_PATH" \
+    echo "Error: conan not found at $CONAN_PATH" \
     fi \
     && echo "conan-version=$(conan --version)" \
     && echo "conan-path=$(which conan)" \
@@ -69,38 +69,31 @@ ENV CONAN_HOME=$HOME/.silabs/slt/installs/conan
 RUN set -x \
     && slt install slc-cli \
     && SLC_CLI_PATH=$(slt where slc-cli) \
-    && echo "SLC_CLI_PATH=$SLC_CLI_PATH" \
     && JAVA_HOME=$(slt where java21) \
+    && echo "SLC_CLI_PATH=$SLC_CLI_PATH" \
     && echo "JAVA_HOME=$JAVA_HOME" \
-    && echo "$SLC_CLI_PATH" >> $GITHUB_PATH \
+    && echo "export SLC_CLI_PATH=$SLC_CLI_PATH" >> /etc/profile.d/slt-env.sh \
+    && echo "export JAVA_HOME=$JAVA_HOME" >> /etc/profile.d/slt-env.sh \
+    && echo "export PATH=\"\${PATH}:${SLC_CLI_PATH}\"" >> /etc/profile.d/slt-env.sh \
     && if [ -n "$JAVA_HOME" ]; then \
-        echo "$JAVA_HOME/jre/bin" >> $GITHUB_PATH \
+    echo "export PATH=\"\${PATH}:${JAVA_HOME}/jre/bin\"" >> /etc/profile.d/slt-env.sh \
     fi \
     && : # last line
-
-ENV SLC_CLI_PATH=$(slt where slc-cli)
-ENV JAVA_HOME=$(slt where java21)
-ENV PATH="${PATH}:${SLC_CLI_PATH}"
-ENV PATH="${PATH}:${JAVA_HOME}/jre/bin"
 
 
 RUN set -x \
     && slt install commander \
     && COMMANDER_PATH=$(slt where commander) \
     && echo "COMMANDER_PATH=$COMMANDER_PATH" \
-    && echo "$COMMANDER_PATH" >> $GITHUB_PATH \
+    && echo "export COMMANDER_PATH=$COMMANDER_PATH" >> /etc/profile.d/slt-env.sh \
+    && echo "export PATH=\"\${PATH}:${COMMANDER_PATH}\"" >> /etc/profile.d/slt-env.sh \
     && : # last line
-
-ENV COMMANDER_PATH=$(slt where commander)
-ENV PATH="${PATH}:${COMMANDER_PATH}"
 
 
 RUN set -x \
     && slt install gcc-arm-none-eabi \
     && ARM_GCC_DIR=$(slt where gcc-arm-none-eabi) \
     && echo "ARM_GCC_DIR=$ARM_GCC_DIR" \
-    && echo "$ARM_GCC_DIR/bin" >> $GITHUB_PATH \
+    && echo "export ARM_GCC_DIR=$ARM_GCC_DIR" >> /etc/profile.d/slt-env.sh \
+    && echo "export PATH=\"\${PATH}:${ARM_GCC_DIR}/bin\"" >> /etc/profile.d/slt-env.sh \
     && : # last line
-
-ENV ARM_GCC_DIR=$(slt where gcc-arm-none-eabi)
-ENV PATH="${PATH}:${ARM_GCC_DIR}/bin"
