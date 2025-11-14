@@ -3,15 +3,21 @@ name: Publish Docker
 on:
   push:
     paths:
-      - '.github/workflows/docker-publish.yml'
-      - 'docker/*'
+      - ".github/workflows/docker-publish.yml"
+      - "docker/*"
 
   workflow_dispatch:
     inputs:
-        push_images:
-          required: false
-          type: boolean
-          default: false
+      push_images:
+        required: false
+        description: "Push the images"
+        type: boolean
+        default: false
+      tools:
+        required: false
+        description: "Build the tools image"
+        type: boolean
+        default: false
 
 jobs:
   publish-matter-extension-dependencies-image:
@@ -23,11 +29,11 @@ jobs:
       id-token: write
     steps:
       # Checkout repository
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # Login to GitHub Container Registry
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v5
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -36,18 +42,22 @@ jobs:
       # Set version variable for tagging the image by reading from docker/version file
       - name: Read and print version from docker/version file
         run: |
-          SISDK_Tag=$(grep '^SISDK_Tag=' docker/version | cut -d'=' -f2)
-          WiFI_SDK_Tag=$(grep '^WiFI_SDK_Tag=' docker/version | cut -d'=' -f2)
-          VERSION="SiSDK${SISDK_Tag}_WiFi_SDK${WiFI_SDK_Tag}"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Parsed VERSION: $VERSION"
-      
-      # Call docker/build.sh and pass version as an argument
-      - name: Build and push Docker image
-        run: |
-          chmod +x docker/build.sh
-          if [[ "${{ github.event.inputs.push_images }}" == "true" ]]; then
-            ./docker/build.sh --tag "$VERSION" --push
-          else
-            ./docker/build.sh --tag "$VERSION"
+          if [[ "${{ github.event.inputs.tools }}" == "false" ]]; then
+            SISDK_Tag=$(grep '^SISDK_Tag=' docker/version | cut -d'=' -f2)
+            WiFI_SDK_Tag=$(grep '^WiFI_SDK_Tag=' docker/version | cut -d'=' -f2)
+            VERSION="SiSDK${SISDK_Tag}_WiFi_SDK${WiFI_SDK_Tag}"
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+            echo "Parsed VERSION: $VERSION"
           fi
+
+      # Call docker/sdks/build.sh and pass version as an argument
+      - name: Build and push Docker image
+        if: ${{ github.event.inputs.tools == "false" }}
+        run: |
+          chmod +x docker/sdks/build.sh
+          ./docker/sdks/build.sh --tag "$VERSION" --push
+      - name: Build and push tools Docker image
+        if: ${{ github.event.inputs.tools == "true" }}
+        run: |
+          chmod +x docker/tools/build.sh
+          ./docker/tools/build.sh --tag "25Q4-Tools" --push
