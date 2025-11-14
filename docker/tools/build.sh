@@ -31,7 +31,7 @@ IMAGE_NAME="ghcr.io/siliconlabssoftware/matter_build_action_tools"
 
 # Build the Docker image, passing build args
 docker build \
-  -f Dockerfile \
+  -f docker/tools/Dockerfile \
   -t "${IMAGE_NAME}:${TAG}" .
 
 # Push the image only if --push was provided
