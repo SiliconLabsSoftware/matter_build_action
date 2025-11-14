@@ -60,7 +60,7 @@ RUN set -x \
     fi \
     && echo "conan-version=$(conan --version)" \
     && echo "conan-path=$(which conan)" \
-    && echo "CONAN_HOME=$HOME/.silabs/slt/installs/conan" \
+    && echo "CONAN_HOME=~/.silabs/slt/installs/conan" \
     && : # last line
 
 ENV CONAN_HOME=$HOME/.silabs/slt/installs/conan
