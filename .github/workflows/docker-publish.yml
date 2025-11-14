@@ -12,7 +12,7 @@ on:
         required: false
         description: "Push the images"
         type: boolean
-        default: false
+        default: true
       tools:
         required: false
         description: "Build the tools image"
@@ -41,7 +41,6 @@ jobs:
 
       # Set version variable for tagging the image by reading from docker/version file
       - name: Read and print version from docker/version file
-        id: read-version
         run: |
           if [[ "${{ github.event.inputs.tools }}" != "true" ]]; then
             SISDK_Tag=$(grep '^SISDK_Tag=' docker/version | cut -d'=' -f2)
@@ -51,7 +50,6 @@ jobs:
             echo "Parsed VERSION: $VERSION"
           fi
       - name: Build and push tools Docker image
-        if: ${{ github.event.inputs.tools == true }}
         run: |
           chmod +x docker/tools/build.sh
           ./docker/tools/build.sh --tag "25Q4-Tools" --push
