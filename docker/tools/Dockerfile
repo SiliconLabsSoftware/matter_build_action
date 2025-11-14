@@ -43,9 +43,11 @@ RUN set -x \
 
 RUN set -x \
     && slt install foo --engine conan || true \
+    && HOME="${HOME:-/root}" \
     && CONAN_ENGINE_PATH="$HOME/.silabs/slt/engines/conan/conan_engine" \
     && CONAN_PATH="$HOME/.silabs/slt/engines/conan/conan/conan" \
     && INSTALL_PATH="$HOME/.local/bin" \
+    && mkdir -p "$INSTALL_PATH" \
     && if [ -f "$CONAN_ENGINE_PATH" ]; then \
     ln -s "$CONAN_ENGINE_PATH" "$INSTALL_PATH/conan_engine"; \
     else \
@@ -60,10 +62,10 @@ RUN set -x \
     fi \
     && echo "conan-version=$(conan --version)" \
     && echo "conan-path=$(which conan)" \
-    && echo "CONAN_HOME=~/.silabs/slt/installs/conan" \
+    && echo "CONAN_HOME=$HOME/.silabs/slt/installs/conan" \
     && : # last line
 
-ENV CONAN_HOME=$HOME/.silabs/slt/installs/conan
+ENV CONAN_HOME=/root/.silabs/slt/installs/conan
 
 RUN set -x \
     && slt install slc-cli \
