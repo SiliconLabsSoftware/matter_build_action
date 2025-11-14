@@ -27,11 +27,11 @@ if [[ -z "$TAG" ]]; then
 fi
 
 # Compose image tag
-IMAGE_NAME="ghcr.io/siliconlabssoftware/matter_extension_dependencies"
+IMAGE_NAME="ghcr.io/siliconlabssoftware/matter_build_action_tools"
 
 # Build the Docker image, passing build args
 docker build \
-  -f docker/Dockerfile \
+  -f Dockerfile \
   -t "${IMAGE_NAME}:${TAG}" .
 
 # Push the image only if --push was provided
