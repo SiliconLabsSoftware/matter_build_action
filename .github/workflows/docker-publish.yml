@@ -52,12 +52,12 @@ jobs:
 
       # Call docker/sdks/build.sh and pass version as an argument
       - name: Build and push Docker image
-        if: ${{ github.event.inputs.tools == "false" }}
+        if: ${{ github.event.inputs.tools == false }}
         run: |
           chmod +x docker/sdks/build.sh
           ./docker/sdks/build.sh --tag "$VERSION" --push
       - name: Build and push tools Docker image
-        if: ${{ github.event.inputs.tools == "true" }}
+        if: ${{ github.event.inputs.tools == true }}
         run: |
           chmod +x docker/tools/build.sh
           ./docker/tools/build.sh --tag "25Q4-Tools" --push
