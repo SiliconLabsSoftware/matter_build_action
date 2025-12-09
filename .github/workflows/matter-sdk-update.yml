@@ -1,4 +1,4 @@
-name: Update Matter SDK submodule
+name: Update matter_sdk submodule
 
 on:
   workflow_call:
@@ -10,7 +10,7 @@ permissions:
 jobs:
   update-matter-sdk-submodule:
     runs-on: ubuntu-latest
-    name: Update Matter SDK submodule (${{ matrix.target_branch }})
+    name: Update matter_sdk submodule (${{ matrix.target_branch }})
     strategy:
       fail-fast: false
       matrix:
@@ -54,8 +54,8 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           base: ${{ matrix.target_branch }}
-          commit-message: "Update Matter SDK submodule to ${{ steps.update_submodule.outputs.short_hash }}"
-          title: "[${{ matrix.target_branch }}] Update Matter SDK submodule to ${{ steps.update_submodule.outputs.short_hash }}"
+          commit-message: "Update matter_sdk submodule to ${{ steps.update_submodule.outputs.short_hash }}"
+          title: "[${{ matrix.target_branch }}] Update matter_sdk submodule to ${{ steps.update_submodule.outputs.short_hash }}"
           body: |
             Bumps matter_sdk submodule from `${{ steps.update_submodule.outputs.short_hash_before }}` to `${{ steps.update_submodule.outputs.short_hash }}`.
 
