@@ -19,10 +19,18 @@ jobs:
           - release_2.8-1.5
 
     steps:
+      - name: Generate GitHub App token
+        id: generate_token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.SILABSSW_MATTER_CI_BOT_APP_ID }}
+          private-key: ${{ secrets.SILABSSW_MATTER_CI_BOT_APP_PRIVATE_KEY }}
+
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
           ref: ${{ matrix.target_branch }}
+          token: ${{ steps.generate_token.outputs.token }}
           submodules: false
 
       - name: Update submodule
@@ -53,6 +61,7 @@ jobs:
         id: create_pr
         uses: peter-evans/create-pull-request@v5
         with:
+          token: ${{ steps.generate_token.outputs.token }}
           base: ${{ matrix.target_branch }}
           commit-message: "Update matter_sdk submodule to ${{ steps.update_submodule.outputs.short_hash }}"
           title: "[${{ matrix.target_branch }}] Update matter_sdk submodule to ${{ steps.update_submodule.outputs.short_hash }}"
