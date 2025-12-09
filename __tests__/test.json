@@ -9,11 +9,13 @@
         "sample-app-1": [
             {
                 "boards": ["board1", "board2"],
-                "arguments": ["arg1", "arg2"]
+                "arguments": ["arg1", "arg2"],
+                "projectFileType": "slcw"
             },
             {
                 "boards": ["board3", "board4"],
-                "arguments": ["arg3", "arg4"]
+                "arguments": ["arg3", "arg4"],
+                "projectFileType": "slcp"
             }
         ]        
     },
