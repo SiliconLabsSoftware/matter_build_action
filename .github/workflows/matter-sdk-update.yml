@@ -1,0 +1,76 @@
+name: Update Matter SDK submodule
+
+on:
+  workflow_call:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-matter-sdk-submodule:
+    runs-on: ubuntu-latest
+    name: Update Matter SDK submodule (${{ matrix.target_branch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        target_branch:
+          - main
+          - release_2.8-1.5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ matrix.target_branch }}
+          submodules: false
+
+      - name: Update submodule
+        id: update_submodule
+        run: |
+          git submodule update --init third_party/matter_sdk
+          short_hash_before=$(cd third_party/matter_sdk && git rev-parse --short HEAD)
+          echo "short_hash_before=${short_hash_before}" >> $GITHUB_OUTPUT
+          
+          cd third_party/matter_sdk
+          git fetch origin ${{ matrix.target_branch }}
+          git checkout origin/${{ matrix.target_branch }}
+          cd ../..
+          
+          git add third_party/matter_sdk
+          
+          if git diff-index --quiet HEAD; then
+            echo "empty=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          short_hash=$(cd third_party/matter_sdk && git rev-parse --short HEAD)
+          echo "short_hash=${short_hash}" >> $GITHUB_OUTPUT
+          echo "pr_branch=update-matter-sdk-${{ matrix.target_branch }}-${short_hash}" >> $GITHUB_OUTPUT
+
+      - name: Create PR 
+        if: steps.update_submodule.outputs.empty != 'true'
+        id: create_pr
+        uses: peter-evans/create-pull-request@v5
+        with:
+          base: ${{ matrix.target_branch }}
+          commit-message: "Update Matter SDK submodule to ${{ steps.update_submodule.outputs.short_hash }}"
+          title: "[${{ matrix.target_branch }}] Update Matter SDK submodule to ${{ steps.update_submodule.outputs.short_hash }}"
+          body: |
+            Bumps matter_sdk submodule from `${{ steps.update_submodule.outputs.short_hash_before }}` to `${{ steps.update_submodule.outputs.short_hash }}`.
+
+            See diff at https://github.com/SiliconLabsSoftware/matter_sdk/compare/${{ steps.update_submodule.outputs.short_hash_before }}...${{ steps.update_submodule.outputs.short_hash }}
+          branch: ${{ steps.update_submodule.outputs.pr_branch }}
+
+      - name: Save PR branch to artifact
+        if: steps.update_submodule.outputs.empty != 'true'
+        run: |
+          mkdir -p pr-branches
+          echo "${{ steps.update_submodule.outputs.pr_branch }}" > pr-branches/${{ matrix.target_branch }}.txt
+
+      - name: Upload PR branch artifact
+        if: steps.update_submodule.outputs.empty != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-branch-${{ matrix.target_branch }}
+          path: pr-branches/
