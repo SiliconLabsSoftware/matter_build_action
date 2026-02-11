@@ -45,9 +45,9 @@ IMAGE_NAME="ghcr.io/siliconlabssoftware/chip-efr32-csa:2025.12.0"
 # Build the Docker image, passing build args
 docker build \
   -f docker/Dockerfile \
-  -t "${IMAGE_NAME}:${TAG}" .
+  -t "ghcr.io/siliconlabssoftware/chip-efr32-csa:2025.12.0" .
 
 # Push the image only if --push was provided
 if [[ "$PUSH_IMAGE" == "true" ]]; then
-  docker push "${IMAGE_NAME}:${TAG}"
+  docker push "ghcr.io/siliconlabssoftware/chip-efr32-csa:2025.12.0"
 fi
