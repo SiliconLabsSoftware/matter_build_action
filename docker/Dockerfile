@@ -1,4 +1,3 @@
-ARG VERSION=1
 FROM ghcr.io/project-chip/chip-build:latest as build
 LABEL org.opencontainers.image.source https://github.com/project-chip/connectedhomeip
 
@@ -50,7 +49,7 @@ RUN rm -rf /tmp/wifi_sdk/.git /tmp/wifi_sdk/examples /tmp/wifi_sdk/components/de
     && : # last line
 
 # Final SDK container for compiling using Silabs SDK
-FROM ghcr.io/project-chip/chip-build:${VERSION}
+FROM ghcr.io/project-chip/chip-build:latest
 
 ADD docker/requirements.txt /tmp/requirements.txt
 
