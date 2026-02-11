@@ -1,5 +1,5 @@
 ARG VERSION=1
-FROM ghcr.io/project-chip/chip-build:${VERSION} as build
+FROM ghcr.io/project-chip/chip-build:latest as build
 LABEL org.opencontainers.image.source https://github.com/project-chip/connectedhomeip
 
 
