@@ -15,9 +15,17 @@ RUN set -x \
 COPY scripts/setup/silabs/sdk-pkg.slt /tmp/sdk-pkg.slt
 COPY scripts/setup/silabs/simplicity_sdk_keep_folders.txt /tmp/keep_folders.txt
 
+# Find conan and install testing remote
+RUN set -x \
+    && conan_path=$(/tmp/slt_install/slt where conan)/conan/ \
+    && cd $conan_path \
+    && conan remote add pre-release https://conan-prerelease.silabs.net/ \
+    && : # last line
+
 # Install packages via SLT (simplicity-sdk, wiseconnect, slc-cli) then copy to /tmp for final image
 RUN set -x \
-    && /tmp/slt_install/slt install -f /tmp/sdk-pkg.slt \
+    && /tmp/slt_install/slt install -f /tmp/sisdk-pkg.slt \
+    && /tmp/slt_install/slt install -f /tmp/wiseconnect-pkg.slt \
     && /tmp/slt_install/slt install slc-cli \
     && cp -a $(/tmp/slt_install/slt where simplicity-sdk) /tmp/simplicity_sdk \
     && cp -a $(/tmp/slt_install/slt where wiseconnect) /tmp/wifi_sdk \
