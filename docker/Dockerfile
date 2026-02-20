@@ -15,6 +15,16 @@ RUN set -x \
 COPY scripts/setup/silabs/sisdk-pkg.slt scripts/setup/silabs/wiseconnect-pkg.slt /tmp/
 COPY scripts/setup/silabs/simplicity_sdk_keep_folders.txt /tmp/keep_folders.txt
 
+RUN set -x \
+    && echo "Installing conan via SLT..." \
+    && /tmp/slt_install/slt install conan \
+    && echo "Locating conan and adding pre-release remote..." \
+    && conan_path=$(/tmp/slt_install/slt where conan)/conan/ \
+    && cd "$conan_path" \
+    && conan remote add pre-release https://conan-prerelease.silabs.net/ \
+    && echo "Conan pre-release remote added." \
+    && : # last line
+
 # Install packages via SLT (simplicity-sdk, wiseconnect, slc-cli) then add conan remote and copy to /tmp for final image
 RUN set -x \
     && conan_path=$(/tmp/slt_install/slt where conan)/conan/ \
