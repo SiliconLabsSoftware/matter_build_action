@@ -26,8 +26,6 @@ RUN set -x \
 
 # Install packages via SLT (simplicity-sdk, wiseconnect, slc-cli) then add conan remote and copy to /tmp for final image
 RUN set -x \
-    && conan_exe=$(/tmp/slt_install/slt where conan)/conan/conan \
-    && "$conan_exe" remote add pre-release https://conan-prerelease.silabs.net/ \
     && /tmp/slt_install/slt install -f /tmp/sisdk-pkg.slt \
     && /tmp/slt_install/slt install -f /tmp/wiseconnect-pkg.slt \
     && /tmp/slt_install/slt install slc-cli \
