@@ -1,5 +1,5 @@
-FROM ghcr.io/project-chip/chip-build:latest as build
-LABEL org.opencontainers.image.source https://github.com/project-chip/connectedhomeip
+FROM ghcr.io/project-chip/chip-build:latest AS build
+LABEL org.opencontainers.image.source=https://github.com/project-chip/connectedhomeip
 
 
 # Setup SLT CLI (same as scripts/setup/silabs/install-packages.py) and install simplicity-sdk + wiseconnect via sdk-pkg.slt
@@ -11,26 +11,22 @@ RUN set -x \
     && chmod +x /tmp/slt_install/slt \
     && : # last line
 
-# Copy sdk-pkg.slt and Simplicity SDK keep-list (build context must be repo root)
-COPY scripts/setup/silabs/sdk-pkg.slt /tmp/sdk-pkg.slt
+# Copy SLT package manifests and Simplicity SDK keep-list (build context must be repo root)
+COPY scripts/setup/silabs/sisdk-pkg.slt scripts/setup/silabs/wiseconnect-pkg.slt /tmp/
 COPY scripts/setup/silabs/simplicity_sdk_keep_folders.txt /tmp/keep_folders.txt
 
-# Find conan and install testing remote
+# Install packages via SLT (simplicity-sdk, wiseconnect, slc-cli) then add conan remote and copy to /tmp for final image
 RUN set -x \
     && conan_path=$(/tmp/slt_install/slt where conan)/conan/ \
-    && cd $conan_path \
+    && cd "$conan_path" \
     && conan remote add pre-release https://conan-prerelease.silabs.net/ \
-    && : # last line
-
-# Install packages via SLT (simplicity-sdk, wiseconnect, slc-cli) then copy to /tmp for final image
-RUN set -x \
     && /tmp/slt_install/slt install -f /tmp/sisdk-pkg.slt \
     && /tmp/slt_install/slt install -f /tmp/wiseconnect-pkg.slt \
     && /tmp/slt_install/slt install slc-cli \
     && cp -a $(/tmp/slt_install/slt where simplicity-sdk) /tmp/simplicity_sdk \
     && cp -a $(/tmp/slt_install/slt where wiseconnect) /tmp/wifi_sdk \
     && cp -a $(/tmp/slt_install/slt where slc-cli) /tmp/slc_cli \
-    && rm -rf /tmp/slt_install /tmp/sdk-pkg.slt \
+    && rm -rf /tmp/slt_install /tmp/sisdk-pkg.slt /tmp/wiseconnect-pkg.slt \
     && : # last line
 
 # Trim Simplicity SDK: keep only top-level folders and .a libraries listed in simplicity_sdk_keep_folders.txt; remove all other .a
