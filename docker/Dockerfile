@@ -9,8 +9,6 @@ RUN set -x \
     && unzip -q /tmp/slt.zip -d /tmp/slt_install \
     && rm /tmp/slt.zip \
     && chmod +x /tmp/slt_install/slt \
-    && export CONAN_HOME=/root/.silabs/slt/installs/conan \
-    && echo "CONAN_HOME=${CONAN_HOME}" >> $GITHUB_ENV \
     && : # last line
 
 # Copy SLT package manifests and Simplicity SDK keep-list (build context must be repo root)
@@ -19,11 +17,6 @@ COPY scripts/setup/silabs/simplicity_sdk_keep_folders.txt /tmp/keep_folders.txt
 
 RUN set -x \
     && /tmp/slt_install/slt update --self \
-    && echo "CONAN_HOME=${CONAN_HOME}" \
-    && rm -rf /root/.silabs/slt/installs/conan \
-    && rm -rf /root/.conan2 \
-    && rm -rf /root/.silabs/slt/engines \
-    && rm -rf /root/.silabs/slt/installs/conan/slt-remotes.json \
     && echo "Installing conan via SLT..." \
     && /tmp/slt_install/slt install conan \
     && echo "Locating conan and adding pre-release remote..." \
