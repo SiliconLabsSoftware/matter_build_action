@@ -23,7 +23,7 @@ RUN set -x \
     && $conan_path remote add pre-release https://conan-prerelease.silabs.net/ \
     && echo "Conan pre-release remote added." \
     && $conan_path remote list \
-    && $conan_path remote disable public-conan-silabs-net \
+    && $conan_path remote disable conancenter \
     && $conan_path remote list \
     && : # last line
 
