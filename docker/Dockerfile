@@ -16,14 +16,13 @@ COPY scripts/setup/silabs/sisdk-pkg.slt scripts/setup/silabs/wiseconnect-pkg.slt
 COPY scripts/setup/silabs/simplicity_sdk_keep_folders.txt /tmp/keep_folders.txt
 
 RUN set -x \
+    && /tmp/slt_install/slt update --self \
     && echo "Installing conan via SLT..." \
     && /tmp/slt_install/slt install conan \
     && echo "Locating conan and adding pre-release remote..." \
     && conan_path=$(/tmp/slt_install/slt where conan)/conan/conan \
-    && $conan_path remote add pre-release https://conan-prerelease.silabs.net/ \
+    && $conan_path remote add prerelease https://conan-prerelease.silabs.net/ \
     && echo "Conan pre-release remote added." \
-    && $conan_path remote list \
-    && $conan_path remote disable conancenter \
     && $conan_path remote list \
     && : # last line
 
