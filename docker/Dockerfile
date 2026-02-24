@@ -26,6 +26,7 @@ RUN set -x \
     && echo "Locating conan and adding pre-release remote..." \
     && conan_path=$(/tmp/slt_install/slt where conan)/conan/conan \
     && $conan_path remote add testing https://conan-prerelease.silabs.net/ \
+    && $conan_path remote add conancenter https://conan.silabs.net -f\
     && echo "Conan pre-release remote added." \
     && $conan_path remote list \
     && : # last line
