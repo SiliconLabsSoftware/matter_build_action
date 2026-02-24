@@ -1,6 +1,20 @@
 FROM ghcr.io/project-chip/chip-build:latest AS build
 LABEL org.opencontainers.image.source=https://github.com/project-chip/connectedhomeip
 
+# GNU ARM Embedded toolchain, cross compiler for various platform builds
+RUN set -x \
+    && apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -fy --no-install-recommends \
+    gcc-arm-none-eabi \
+    binutils-arm-none-eabi \
+    openjdk-17-jdk-headless \
+    ccache \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/ \
+    # Install Python Packages
+    && pip3 install --break-system-packages -r /tmp/requirements.txt \
+    && rm /tmp/requirements.txt \
+    && : # last line
 
 # Setup SLT CLI (same as scripts/setup/silabs/install-packages.py) and install simplicity-sdk + wiseconnect via sdk-pkg.slt
 RUN set -x \
@@ -68,21 +82,6 @@ RUN rm -rf /tmp/wifi_sdk/.git /tmp/wifi_sdk/examples /tmp/wifi_sdk/components/de
 FROM ghcr.io/project-chip/chip-build:latest
 
 ADD docker/requirements.txt /tmp/requirements.txt
-
-# GNU ARM Embedded toolchain, cross compiler for various platform builds
-RUN set -x \
-    && apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -fy --no-install-recommends \
-    gcc-arm-none-eabi \
-    binutils-arm-none-eabi \
-    openjdk-17-jdk-headless \
-    ccache \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/ \
-    # Install Python Packages
-    && pip3 install --break-system-packages -r /tmp/requirements.txt \
-    && rm /tmp/requirements.txt \
-    && : # last line
 
 # Keep GSDK_ROOT name until rename transition to SISDK is completed
 ENV GSDK_ROOT=/opt/silabs/simplicity_sdk/
