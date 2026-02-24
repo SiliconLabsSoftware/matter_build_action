@@ -20,7 +20,7 @@ RUN set -x \
     && rm -rf /root/.silabs/slt/installs/conan \
     && rm -rf /root/.conan2 \
     && rm -rf /root/.silabs/slt/engines \
-    && rm -rf /root/.silabs/slt/installs/conan/slt-remotes.json
+    && rm -rf /root/.silabs/slt/installs/conan/slt-remotes.json \
     && echo "Installing conan via SLT..." \
     && /tmp/slt_install/slt install conan \
     && echo "Locating conan and adding pre-release remote..." \
