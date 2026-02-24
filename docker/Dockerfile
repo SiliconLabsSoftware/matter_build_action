@@ -21,9 +21,10 @@ RUN set -x \
     && /tmp/slt_install/slt install conan \
     && echo "Locating conan and adding pre-release remote..." \
     && conan_path=$(/tmp/slt_install/slt where conan)/conan/conan \
-    && $conan_path remote add prerelease https://conan-prerelease.silabs.net/ \
+    && $conan_path remote add testing https://conan-prerelease.silabs.net/ \
     && echo "Conan pre-release remote added." \
     && $conan_path remote list \
+    && /tmp/slt_install/slt install simplicity-sdk/2025.12.1-alpha@silabs \
     && : # last line
 
 # Install packages via SLT (simplicity-sdk, wiseconnect, slc-cli) then add conan remote and copy to /tmp for final image
