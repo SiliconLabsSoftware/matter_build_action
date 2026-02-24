@@ -43,6 +43,7 @@ RUN set -x \
     && $conan_path remote add conancenter https://conan.silabs.net -f\
     && $conan_path remote add conan-silabs-net https://conan.silabs.net -f\
     && echo "Conan pre-release remote added." \
+    && rm -rf /root/.silabs/slt/installs/conan/slt-remotes.json \
     && $conan_path remote list \
     && /tmp/slt_install/slt install simplicity-sdk/2025.12.1-alpha@silabs \
     && cp -a $(/tmp/slt_install/slt where simplicity-sdk) /tmp/simplicity_sdk \
