@@ -28,7 +28,7 @@ RUN set -x \
 
 # Install packages via SLT (simplicity-sdk, wiseconnect, slc-cli) then add conan remote and copy to /tmp for final image
 RUN set -x \
-    && /tmp/slt_install/slt install -f /tmp/sisdk-pkg.slt \
+    && /tmp/slt_install/slt install simplicity-sdk/2025.12.1-alpha@silabs \
     && /tmp/slt_install/slt install -f /tmp/wiseconnect-pkg.slt \
     && /tmp/slt_install/slt install slc-cli \
     && cp -a $(/tmp/slt_install/slt where simplicity-sdk) /tmp/simplicity_sdk \
