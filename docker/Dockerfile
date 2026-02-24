@@ -17,7 +17,7 @@ COPY scripts/setup/silabs/simplicity_sdk_keep_folders.txt /tmp/keep_folders.txt
 
 RUN set -x \
     && CONAN_HOME=~/.silabs/slt/installs/conan \
-    && echo "CONAN_HOME=${CONAN_HOME}" >> $GITHUB_ENV
+    && echo "CONAN_HOME=${CONAN_HOME}" >> $GITHUB_ENV \
     && /tmp/slt_install/slt update --self \
     && echo "Installing conan via SLT..." \
     && /tmp/slt_install/slt install conan \
