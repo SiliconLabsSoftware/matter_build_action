@@ -22,6 +22,9 @@ RUN set -x \
     && conan_path=$(/tmp/slt_install/slt where conan)/conan/conan \
     && $conan_path remote add pre-release https://conan-prerelease.silabs.net/ \
     && echo "Conan pre-release remote added." \
+    && conan remote list \
+    && conan remote disable public-conan-silabs-net \
+    && conan remote list \
     && : # last line
 
 # Install packages via SLT (simplicity-sdk, wiseconnect, slc-cli) then add conan remote and copy to /tmp for final image
