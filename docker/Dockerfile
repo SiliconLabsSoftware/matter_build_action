@@ -19,11 +19,13 @@ RUN set -x \
     && /tmp/slt_install/slt update --self \
     && rm -rf /root/.silabs/slt/installs/conan \
     && rm -rf /root/.conan2 \
+    && rm -rf /root/.silabs/slt/engines \
     && echo "Installing conan via SLT..." \
     && /tmp/slt_install/slt install conan \
     && echo "Locating conan and adding pre-release remote..." \
     && conan_path=$(/tmp/slt_install/slt where conan)/conan/conan \
     && $conan_path remote add testing https://conan-prerelease.silabs.net/ \
+    && $conan_path remote remove conancenter \
     && echo "Conan pre-release remote added." \
     && $conan_path remote list \
     && : # last line
