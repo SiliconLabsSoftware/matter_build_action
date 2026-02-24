@@ -1,6 +1,11 @@
 FROM ghcr.io/project-chip/chip-build:latest AS build
 LABEL org.opencontainers.image.source=https://github.com/project-chip/connectedhomeip
 
+
+# Copy SLT package manifests and Simplicity SDK keep-list (build context must be repo root)
+COPY scripts/setup/silabs/sisdk-pkg.slt scripts/setup/silabs/wiseconnect-pkg.slt docker/requirements.txt  /tmp/
+COPY scripts/setup/silabs/simplicity_sdk_keep_folders.txt /tmp/keep_folders.txt
+
 # GNU ARM Embedded toolchain, cross compiler for various platform builds
 RUN set -x \
     && apt-get update \
@@ -24,10 +29,6 @@ RUN set -x \
     && rm /tmp/slt.zip \
     && chmod +x /tmp/slt_install/slt \
     && : # last line
-
-# Copy SLT package manifests and Simplicity SDK keep-list (build context must be repo root)
-COPY scripts/setup/silabs/sisdk-pkg.slt scripts/setup/silabs/wiseconnect-pkg.slt /tmp/
-COPY scripts/setup/silabs/simplicity_sdk_keep_folders.txt /tmp/keep_folders.txt
 
 RUN set -x \
     && /tmp/slt_install/slt update --self \
