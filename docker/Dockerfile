@@ -2,8 +2,8 @@ FROM ghcr.io/project-chip/chip-build:latest AS build
 LABEL org.opencontainers.image.source=https://github.com/project-chip/connectedhomeip
 
 
-# Copy SLT package manifests and Simplicity SDK keep-list (build context must be repo root)
-COPY scripts/setup/silabs/sisdk-pkg.slt scripts/setup/silabs/wiseconnect-pkg.slt docker/requirements.txt  /tmp/
+# Copy SLT package manifests, lock (conan-repos without conan-aus for CI reachability), and Simplicity SDK keep-list (build context must be repo root)
+COPY scripts/setup/silabs/sisdk-pkg.lock scripts/setup/silabs/wiseconnect-pkg.slt docker/requirements.txt  /tmp/
 COPY scripts/setup/silabs/simplicity_sdk_keep_folders.txt /tmp/keep_folders.txt
 
 # GNU ARM Embedded toolchain, cross compiler for various platform builds
@@ -32,21 +32,8 @@ RUN set -x \
 
 RUN set -x \
     && /tmp/slt_install/slt update --self \
-    && echo "Installing conan via SLT..." \
-    && rm -rf /root/.silabs/slt/installs/conan/ \
-    && rm -rf /root/.silabs/slt/engines/ \
-    && rm -rf /root/.silabs/slt/installs/conan/slt-remotes.json \
-    && /tmp/slt_install/slt install conan \
-    && echo "Locating conan and adding pre-release remote..." \
     && conan_path=$(/tmp/slt_install/slt where conan)/conan/conan \
-    && $conan_path remote add testing https://conan-prerelease.silabs.net/ \
-    && echo "Conan pre-release remote added." \
-    && rm -rf /root/.silabs/slt/installs/conan/slt-remotes.json \
-    && $conan_path remote list \
-    && /tmp/slt_install/slt install simplicity-sdk \
-    && ($conan_path remote list | grep -q conan-silabs-net && $conan_path remote disable conan-silabs-net || true) \
-    && $conan_path list "*" -r testing \
-    && /tmp/slt_install/slt install simplicity-sdk/2025.12.1-alpha \
+    && /tmp/slt_install/slt install -f /tmp/sisdk-pkg.lock \
     && cp -a $(/tmp/slt_install/slt where simplicity-sdk) /tmp/simplicity_sdk \
     && : # last line
 
