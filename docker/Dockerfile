@@ -18,6 +18,9 @@ COPY scripts/setup/silabs/simplicity_sdk_keep_folders.txt /tmp/keep_folders.txt
 RUN set -x \
     && /tmp/slt_install/slt update --self \
     && echo "Installing conan via SLT..." \
+    && rm -rf /root/.silabs/slt/installs/conan/ \
+    && rm -rf /root/.silabs/slt/engines/ \
+    && rm -rf /root/.silabs/slt/installs/conan/slt-remotes.json \
     && /tmp/slt_install/slt install conan \
     && echo "Locating conan and adding pre-release remote..." \
     && conan_path=$(/tmp/slt_install/slt where conan)/conan/conan \
