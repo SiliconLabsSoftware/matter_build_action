@@ -68,6 +68,7 @@ bluetooth_le_host/build/gcc/cortex-m33/hal/release/libble_host_hal_series2.a
 bluetooth_le_host/build/gcc/cortex-m33/hci/release/libble_host_hci.a
 bluetooth_le_host/build/gcc/cortex-m33/system/release/libble_host_system.a
 bgapi_protocol/build/gcc/cortex-m33/protocol/core/release/libbgapi_core.a
+bgapi_protocol/build/gcc/cortex-m33/protocol/command/release/libbgapi_command.a
 rail_library/autogen/librail_release/librail_multiprotocol_efr32xg24_gcc_release.a
 rail_library/autogen/librail_release/librail_multiprotocol_module_efr32xg24_gcc_release.a
 rail_library/autogen/librail_release/librail_multiprotocol_efr32xg26_gcc_release.a
