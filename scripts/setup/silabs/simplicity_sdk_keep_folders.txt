@@ -51,6 +51,35 @@ util
 
 # efr32_sdk.gni libraries (.a)
 openthread/build/gcc/cortex-m33/cmake/sl-openthread-library/Release/libsl_openthread.a
+# openthread/libs (all .a from connectedhomeip_silabs)
+openthread/libs/libsl_ot_stack_ftd_coap_efr32mg21_gcc.a
+openthread/libs/libsl_ot_stack_ftd_coap_efr32mg24_gcc.a
+openthread/libs/libsl_ot_stack_ftd_coap_efr32mg26_gcc.a
+openthread/libs/libsl_ot_stack_ftd_coap_simg301_gcc.a
+openthread/libs/libsl_ot_stack_ftd_efr32mg21_gcc.a
+openthread/libs/libsl_ot_stack_ftd_efr32mg24_gcc.a
+openthread/libs/libsl_ot_stack_ftd_efr32mg26_gcc.a
+openthread/libs/libsl_ot_stack_ftd_mi_coap_efr32mg21_gcc.a
+openthread/libs/libsl_ot_stack_ftd_mi_coap_efr32mg24_gcc.a
+openthread/libs/libsl_ot_stack_ftd_mi_coap_efr32mg26_gcc.a
+openthread/libs/libsl_ot_stack_ftd_mi_coap_simg301_gcc.a
+openthread/libs/libsl_ot_stack_ftd_simg301_gcc.a
+openthread/libs/libsl_ot_stack_mtd_coap_efr32mg21_gcc.a
+openthread/libs/libsl_ot_stack_mtd_coap_efr32mg24_gcc.a
+openthread/libs/libsl_ot_stack_mtd_coap_efr32mg26_gcc.a
+openthread/libs/libsl_ot_stack_mtd_coap_simg301_gcc.a
+openthread/libs/libsl_ot_stack_mtd_efr32mg21_gcc.a
+openthread/libs/libsl_ot_stack_mtd_efr32mg24_gcc.a
+openthread/libs/libsl_ot_stack_mtd_efr32mg26_gcc.a
+openthread/libs/libsl_ot_stack_mtd_mi_coap_efr32mg21_gcc.a
+openthread/libs/libsl_ot_stack_mtd_mi_coap_efr32mg24_gcc.a
+openthread/libs/libsl_ot_stack_mtd_mi_coap_efr32mg26_gcc.a
+openthread/libs/libsl_ot_stack_mtd_mi_coap_simg301_gcc.a
+openthread/libs/libsl_ot_stack_mtd_simg301_gcc.a
+openthread/libs/libsl_ot_stack_tcp_efr32mg21_gcc.a
+openthread/libs/libsl_ot_stack_tcp_efr32mg24_gcc.a
+openthread/libs/libsl_ot_stack_tcp_efr32mg26_gcc.a
+openthread/libs/libsl_ot_stack_tcp_simg301_gcc.a
 # bluetooth_apploader/build/gcc/cortex-m33/release
 bluetooth_apploader/build/gcc/cortex-m33/release/libapploader.a
 # bluetooth_common/lib/build/gcc/cortex-m33/bgcommon/release
