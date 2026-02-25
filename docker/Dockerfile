@@ -30,20 +30,16 @@ RUN set -x \
     && chmod +x /tmp/slt_install/slt \
     && : # last line
 
-RUN set -x \
-    && /tmp/slt_install/slt update --self \
-    && conan_path=$(/tmp/slt_install/slt where conan)/conan/conan \
-    && /tmp/slt_install/slt install -f /tmp/sisdk-pkg.lock \
-    && cp -a $(/tmp/slt_install/slt where simplicity-sdk) /tmp/simplicity_sdk \
-    && : # last line
-
 # Install packages via SLT (simplicity-sdk, wiseconnect, slc-cli) then add conan remote and copy to /tmp for final image
 RUN set -x \
+    && /tmp/slt_install/slt update --self \
     && /tmp/slt_install/slt install -f /tmp/wiseconnect-pkg.slt \
     && /tmp/slt_install/slt install slc-cli \
     && cp -a $(/tmp/slt_install/slt where wiseconnect) /tmp/wifi_sdk \
     && cp -a $(/tmp/slt_install/slt where slc-cli) /tmp/slc_cli \
     && rm -rf /tmp/slt_install /tmp/sisdk-pkg.slt /tmp/wiseconnect-pkg.slt \
+    && /tmp/slt_install/slt install -f /tmp/sisdk-pkg.lock \
+    && cp -a $(/tmp/slt_install/slt where simplicity-sdk/2025.12.1-alpha) /tmp/simplicity_sdk \
     && : # last line
 
 # Trim Simplicity SDK: keep only top-level folders and .a libraries listed in simplicity_sdk_keep_folders.txt; remove all other .a
