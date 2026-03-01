@@ -3,8 +3,8 @@ FROM ghcr.io/project-chip/chip-build:${VERSION} as build
 LABEL org.opencontainers.image.source https://github.com/project-chip/connectedhomeip
 
 # Copy SLT manifests and Simplicity SDK keep-list from files-slt (build context: Dockerfile folder)
-COPY files-slt/sisdk-pkg.lock files-slt/wiseconnect-pkg.slt /tmp/
-COPY files-slt/simplicity_sdk_keep_folders.txt /tmp/keep_folders.txt
+COPY docker/files-slt/sisdk-pkg.lock docker/files-slt/wiseconnect-pkg.slt /tmp/
+COPY docker/files-slt/simplicity_sdk_keep_folders.txt /tmp/keep_folders.txt
 
 # Setup SLT CLI (same as scripts/setup/silabs/install-packages.py)
 RUN set -x \
