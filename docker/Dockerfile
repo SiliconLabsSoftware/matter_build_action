@@ -1,4 +1,4 @@
-ARG VERSION=1
+ARG VERSION=latest
 FROM ghcr.io/project-chip/chip-build:${VERSION} as build
 LABEL org.opencontainers.image.source https://github.com/project-chip/connectedhomeip
 
@@ -50,7 +50,7 @@ RUN rm -rf /tmp/wifi_sdk/.git /tmp/wifi_sdk/examples /tmp/wifi_sdk/components/de
 # Final SDK container for compiling using Silabs SDK
 FROM ghcr.io/project-chip/chip-build:${VERSION}
 
-ADD requirements.txt /tmp/requirements.txt
+ADD docker/requirements.txt /tmp/requirements.txt
 
 # GNU ARM Embedded toolchain, cross compiler for various platform builds
 RUN set -x \
