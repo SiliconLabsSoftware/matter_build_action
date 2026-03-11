@@ -23,7 +23,7 @@ jobs:
       id-token: write
     steps:
       # Checkout repository
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # Login to GitHub Container Registry
       - name: Login to GitHub Container Registry

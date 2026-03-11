@@ -17,7 +17,7 @@ jobs:
       id-token: write
     steps:
       # Checkout repository (not strictly needed for tagging, but good practice)
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # Login to GitHub Container Registry
       - name: Login to GitHub Container Registry
