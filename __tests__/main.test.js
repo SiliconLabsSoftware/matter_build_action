@@ -28,7 +28,7 @@ describe('run', () =>
 
     it('should run the GitHub Action successfully', async () => 
     {
-        const mockCommands = ['build_script.sh examples/exampleApp/silabs out/test board1 arg1 arg2'];
+        const mockCommands = ['build_script.sh examples/exampleApp/silabs.slcp out/test board1 arg1 arg2'];
 
         const mockJsonData = {
             "standard": {
@@ -51,7 +51,8 @@ describe('run', () =>
         {
             if (name === 'json-file-path') return './test.json';
             if (name === 'example-app') return 'exampleApp';
-            if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
+            if (name === 'slcp-path') return 'examples/exampleApp/silabs.slcp';
+            if (name === 'slcw-path') return 'examples/exampleApp/silabs.slcw';
             if (name === 'build-script') return 'build_script.sh';
             if (name === 'output-directory') return 'out/test';
             if (name === 'build-type') return 'standard'; // Mock build-type input
@@ -77,7 +78,8 @@ describe('run', () =>
         expect(core.getInput).toHaveBeenCalledWith('example-app', { required: true });
         expect(core.getInput).toHaveBeenCalledWith('build-script', { required: true });
         expect(core.getInput).toHaveBeenCalledWith('output-directory', { required: true });
-        expect(core.getInput).toHaveBeenCalledWith('path-to-example-app', { required: true });
+        expect(core.getInput).toHaveBeenCalledWith('slcp-path', { required: true });
+        expect(core.getInput).toHaveBeenCalledWith('slcw-path', { required: true });
         expect(core.getInput).toHaveBeenCalledWith('build-type', { required: true }); // Validate build-type input
         expect(execSync).toHaveBeenCalledWith(mockCommands[0], { stdio: 'inherit' });
     });
@@ -88,7 +90,8 @@ describe('run', () =>
         {
             if (name === 'json-file-path') return './test.json';
             if (name === 'example-app') return 'exampleApp';
-            if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
+            if (name === 'slcp-path') return 'examples/exampleApp/silabs.slcp';
+            if (name === 'slcw-path') return 'examples/exampleApp/silabs.slcw';
             if (name === 'build-script') return 'build_script.sh';
             if (name === 'output-directory') return 'out/test';
             if (name === 'build-type') return 'invalid-type'; // Invalid build-type
@@ -105,7 +108,8 @@ describe('run', () =>
         {
             if (name === 'json-file-path') return './test.json';
             if (name === 'example-app') return 'exampleApp';
-            if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
+            if (name === 'slcp-path') return 'examples/exampleApp/silabs.slcp';
+            if (name === 'slcw-path') return 'examples/exampleApp/silabs.slcw';
             if (name === 'build-script') return 'build_script.sh';
             if (name === 'output-directory') return 'out/test';
             if (name === 'build-type') return 'standard';
@@ -123,13 +127,14 @@ describe('run', () =>
 
     it('should handle error during command execution', async () => 
     {
-        const mockCommands = ['build_script.sh examples/exampleApp/silabs out/test board1 arg1 arg2'];
+        const mockCommands = ['build_script.sh examples/exampleApp/silabs.slcp out/test board1 arg1 arg2'];
 
         core.getInput = jest.fn((name) => 
         {
             if (name === 'json-file-path') return './test.json';
             if (name === 'example-app') return 'exampleApp';
-            if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
+            if (name === 'slcp-path') return 'examples/exampleApp/silabs.slcp';
+            if (name === 'slcw-path') return 'examples/exampleApp/silabs.slcw';
             if (name === 'build-script') return 'build_script.sh';
             if (name === 'output-directory') return 'out/test';
             if (name === 'build-type') return 'standard';
@@ -155,7 +160,8 @@ describe('run', () =>
         {
             if (name === 'json-file-path') return './test.json';
             if (name === 'example-app') return 'exampleApp';
-            if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
+            if (name === 'slcp-path') return 'examples/exampleApp/silabs.slcp';
+            if (name === 'slcw-path') return 'examples/exampleApp/silabs.slcw';
             if (name === 'build-script') return 'build_script.sh';
             if (name === 'output-directory') return 'out/test';
             if (name === 'build-type') return 'standard';
