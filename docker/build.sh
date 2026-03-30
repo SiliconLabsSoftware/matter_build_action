@@ -40,14 +40,14 @@ echo "Parsed SISDK_Tag: $SISDK_Tag"
 echo "Parsed WiFI_SDK_Tag: $WiFI_SDK_Tag"
 
 # Compose image tag
-IMAGE_NAME="ghcr.io/siliconlabssoftware/chip-efr32-csa:2025.12.0"
+IMAGE_NAME="ghcr.io/siliconlabssoftware/chip-efr32-csa:2025.12.2"
 
 # Build the Docker image, passing build args
 docker build \
   -f docker/Dockerfile \
-  -t "ghcr.io/siliconlabssoftware/chip-efr32-csa:2025.12.0" .
+  -t "ghcr.io/siliconlabssoftware/chip-efr32-csa:2025.12.2" .
 
 # Push the image only if --push was provided
 if [[ "$PUSH_IMAGE" == "true" ]]; then
-  docker push "ghcr.io/siliconlabssoftware/chip-efr32-csa:2025.12.0"
+  docker push "ghcr.io/siliconlabssoftware/chip-efr32-csa:2025.12.2"
 fi
