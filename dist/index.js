@@ -25863,7 +25863,10 @@ async function run()
                 // Surface a warning, record the failure, and keep executing
                 // the remaining build combinations without failing the action.
                 core.warning(`${command} failed: ${error.message} (continue-on-error=true, continuing with remaining builds)`);
-                failedCommands.push({ command, message });
+                failedCommands.push({
+                    command,
+                    message
+                });
                 core.endGroup();
                 continue;
             }
