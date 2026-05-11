@@ -25860,9 +25860,9 @@ async function run()
             const message = `Build script failed with error: ${error.message}`;
             if (continueOnError) 
             {
-                // Surface a warning, record the failure, and keep executing
-                // the remaining build combinations without failing the action.
-                core.warning(`${command} failed: ${error.message} (continue-on-error=true, continuing with remaining builds)`);
+                // Record the failure and keep executing remaining combinations.
+                // The action is marked as failed after the loop completes.
+                core.error(`${command} failed: ${error.message} (continue-on-error=true, continuing with remaining builds)`);
                 failedCommands.push({
                     command,
                     message
@@ -25884,7 +25884,7 @@ async function run()
         const summary = failedCommands
             .map((failure, index) => `  ${index + 1}. ${failure.command} -> ${failure.message}`)
             .join('\n');
-        core.warning(`${failedCommands.length} build command(s) failed but were skipped because continue-on-error=true:\n${summary}`);
+        handleFailure(`${failedCommands.length} build command(s) failed (continue-on-error=true):\n${summary}`);
     }
 }
 

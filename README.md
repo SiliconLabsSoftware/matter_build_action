@@ -26,7 +26,7 @@ To use this action, include it in your workflow YAML file.
 | `build-script`        | Build script to be executed for the provided example app                                 |
 | `output-directory`    | Output directory for the build artifacts                                                 |
 | `build-type`          | Defines which build type to use from the json file (standard, full, custom-sqa, release) |
-| `continue-on-error`   | Optional (default `false`). If `true`, continue executing remaining build combinations even if a previous one fails. Failed builds are surfaced as warnings and the action will still succeed. |
+| `continue-on-error`   | Optional (default `false`). If `true`, continue executing remaining build combinations even if a previous one fails. Failed builds are surfaced as errors and the action is marked as failed at the end if any build failed. |
 
 ## Outputs
 

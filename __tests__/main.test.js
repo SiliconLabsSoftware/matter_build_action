@@ -149,7 +149,7 @@ describe('run', () =>
         expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Build script failed with error: Command execution error'));
     });
 
-    it('should continue executing remaining commands and emit warnings when continue-on-error is true', async () => 
+    it('should continue executing remaining commands and still fail the action when continue-on-error is true', async () => 
     {
         const mockCommands = [
             'build_script.sh examples/exampleApp/silabs out/test board1 arg1',
@@ -194,13 +194,14 @@ describe('run', () =>
             expect(execSync).toHaveBeenCalledWith(command, { stdio: 'inherit' });
         });
 
-        // The failed command should be surfaced as a warning, both inline and in the final summary.
-        expect(core.warning).toHaveBeenCalledWith(expect.stringContaining(mockCommands[1]));
-        expect(core.warning).toHaveBeenCalledWith(expect.stringContaining('board2 build failed'));
-        expect(core.warning).toHaveBeenCalledWith(expect.stringContaining('1 build command(s) failed'));
+        // The failed command should be surfaced inline as an error annotation.
+        expect(core.error).toHaveBeenCalledWith(expect.stringContaining(mockCommands[1]));
+        expect(core.error).toHaveBeenCalledWith(expect.stringContaining('board2 build failed'));
 
-        // The action must not be marked as failed when continue-on-error is enabled.
-        expect(core.setFailed).not.toHaveBeenCalled();
+        // The action must still be marked as failed once at the end, with a summary of failures.
+        expect(core.setFailed).toHaveBeenCalledTimes(1);
+        expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('1 build command(s) failed'));
+        expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining(mockCommands[1]));
     });
 
     it('should still fail fast on the first command failure when continue-on-error is false', async () => 
