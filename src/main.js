@@ -49,6 +49,7 @@ async function run()
     let buildScript;
     let outputDirectory;
     let stepCounter = 1;
+    let continueOnError = false;
     
     let buildType;
     const supportedBuildTypes = ["standard", "full", "custom-sqa", "release"]; // Supported build types
@@ -72,7 +73,10 @@ async function run()
         pathToExampleApp = core.getInput('path-to-example-app', { required: true });
         buildScript = core.getInput('build-script', { required: true });
         outputDirectory = core.getInput('output-directory', { required: true });
-        
+
+        const continueOnErrorInput = core.getInput('continue-on-error', { required: false });
+        continueOnError = String(continueOnErrorInput).toLowerCase() === 'true';
+
         const filePath = core.getInput('json-file-path', { required: true });
         const data = await readFileAsync(filePath, 'utf8'); // Read JSON file
         jsonData = JSON.parse(data); // Parse JSON data
@@ -101,6 +105,7 @@ async function run()
     core.endGroup();
 
     // Step 3: Execute each command
+    const failedCommands = [];
     for (const command of commands) 
     {   
         core.startGroup(`Step ${stepCounter++}: Executing ${command}`);
@@ -112,12 +117,34 @@ async function run()
         }
         catch (error) 
         {
-            handleFailure(`Build script failed with error: ${error.message}`);
+            const message = `Build script failed with error: ${error.message}`;
+            if (continueOnError) 
+            {
+                // Record the failure and keep executing remaining combinations.
+                // The action is marked as failed after the loop completes.
+                core.error(`${command} failed: ${error.message} (continue-on-error=true, continuing with remaining builds)`);
+                failedCommands.push({
+                    command,
+                    message
+                });
+                core.endGroup();
+                continue;
+            }
+
+            handleFailure(message);
             core.endGroup();
-                
+
             return;
         }
         core.endGroup();
+    }
+
+    if (continueOnError && failedCommands.length > 0) 
+    {
+        const summary = failedCommands
+            .map((failure, index) => `  ${index + 1}. ${failure.command} -> ${failure.message}`)
+            .join('\n');
+        handleFailure(`${failedCommands.length} build command(s) failed (continue-on-error=true):\n${summary}`);
     }
 }
 

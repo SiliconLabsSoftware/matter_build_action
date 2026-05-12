@@ -149,6 +149,101 @@ describe('run', () =>
         expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Build script failed with error: Command execution error'));
     });
 
+    it('should continue executing remaining commands and still fail the action when continue-on-error is true', async () => 
+    {
+        const mockCommands = [
+            'build_script.sh examples/exampleApp/silabs out/test board1 arg1',
+            'build_script.sh examples/exampleApp/silabs out/test board2 arg2',
+            'build_script.sh examples/exampleApp/silabs out/test board3 arg3',
+        ];
+
+        core.getInput = jest.fn((name) => 
+        {
+            if (name === 'json-file-path') return './test.json';
+            if (name === 'example-app') return 'exampleApp';
+            if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
+            if (name === 'build-script') return 'build_script.sh';
+            if (name === 'output-directory') return 'out/test';
+            if (name === 'build-type') return 'standard';
+            if (name === 'continue-on-error') return 'true';
+        });
+
+        fs.readFile = jest.fn((path, encoding, callback) => 
+        {
+            callback(null, JSON.stringify({ standard: { default: [] } }));
+        });
+
+        JsonParser.mockImplementation(() => ({
+            generateCommands: jest.fn(() => mockCommands),
+        }));
+
+        execSync.mockImplementation((command) => 
+        {
+            if (command === mockCommands[1]) 
+            {
+                throw new Error('board2 build failed');
+            }
+        });
+
+        await expect(run()).resolves.not.toThrow();
+
+        // Every command must still be attempted.
+        expect(execSync).toHaveBeenCalledTimes(mockCommands.length);
+        mockCommands.forEach((command) => 
+        {
+            expect(execSync).toHaveBeenCalledWith(command, { stdio: 'inherit' });
+        });
+
+        // The failed command should be surfaced inline as an error annotation.
+        expect(core.error).toHaveBeenCalledWith(expect.stringContaining(mockCommands[1]));
+        expect(core.error).toHaveBeenCalledWith(expect.stringContaining('board2 build failed'));
+
+        // The action must still be marked as failed once at the end, with a summary of failures.
+        expect(core.setFailed).toHaveBeenCalledTimes(1);
+        expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('1 build command(s) failed'));
+        expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining(mockCommands[1]));
+    });
+
+    it('should still fail fast on the first command failure when continue-on-error is false', async () => 
+    {
+        const mockCommands = [
+            'build_script.sh examples/exampleApp/silabs out/test board1 arg1',
+            'build_script.sh examples/exampleApp/silabs out/test board2 arg2',
+        ];
+
+        core.getInput = jest.fn((name) => 
+        {
+            if (name === 'json-file-path') return './test.json';
+            if (name === 'example-app') return 'exampleApp';
+            if (name === 'path-to-example-app') return 'examples/exampleApp/silabs';
+            if (name === 'build-script') return 'build_script.sh';
+            if (name === 'output-directory') return 'out/test';
+            if (name === 'build-type') return 'standard';
+            if (name === 'continue-on-error') return 'false';
+        });
+
+        fs.readFile = jest.fn((path, encoding, callback) => 
+        {
+            callback(null, JSON.stringify({ standard: { default: [] } }));
+        });
+
+        JsonParser.mockImplementation(() => ({
+            generateCommands: jest.fn(() => mockCommands),
+        }));
+
+        execSync.mockImplementation(() => 
+        {
+            throw new Error('board1 build failed');
+        });
+
+        await expect(run()).resolves.not.toThrow();
+
+        // The loop must bail out after the first failing command.
+        expect(execSync).toHaveBeenCalledTimes(1);
+        expect(execSync).toHaveBeenCalledWith(mockCommands[0], { stdio: 'inherit' });
+        expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Build script failed with error: board1 build failed'));
+    });
+
     it('should handle error when readFileAsync throws an error', async () => 
     {
         core.getInput = jest.fn((name) => 

@@ -21,6 +21,10 @@ inputs:
   build-type:
     description: 'Type of build to be executed'
     required: true
+  continue-on-error:
+    description: 'If true, continue executing remaining build combinations even if a previous build fails. Failed builds are surfaced as errors and the action will be marked as failed at the end if any build failed.'
+    required: false
+    default: 'false'
 
 runs:
   using: 'node24'
