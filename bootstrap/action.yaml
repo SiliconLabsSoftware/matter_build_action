@@ -28,7 +28,7 @@ runs:
 
     - name: Bootstrap from cache
       id: restore
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         key: ${{ steps.prepare.outputs.key }}
         path: |
@@ -44,7 +44,7 @@ runs:
       run: source third_party/matter_sdk/scripts/bootstrap.sh -p all,${{ inputs.platform }}
 
     - name: Save bootstrap cache
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       if: ${{ steps.restore.outputs.cache-hit != 'true' }}
       with:
         key: ${{ steps.prepare.outputs.key }}
