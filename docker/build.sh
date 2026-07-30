@@ -40,14 +40,16 @@ echo "Parsed SISDK_Tag: $SISDK_Tag"
 echo "Parsed WiFI_SDK_Tag: $WiFI_SDK_Tag"
 
 # Compose image tag
-IMAGE_NAME="ghcr.io/siliconlabssoftware/matter_extension_dependencies"
+IMAGE_NAME="ghcr.io/siliconlabssoftware/csa-sl-sdks"
 
 # Build the Docker image, passing build args
 docker build \
+  --platform linux/amd64 \
   --build-arg SISDK_Tag="$SISDK_Tag" \
   --build-arg WiFI_SDK_Tag="$WiFI_SDK_Tag" \
   -f docker/Dockerfile \
-  -t "${IMAGE_NAME}:${TAG}" .
+  -t "${IMAGE_NAME}:${TAG}" \
+  docker/
 
 # Push the image only if --push was provided
 if [[ "$PUSH_IMAGE" == "true" ]]; then
