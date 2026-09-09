@@ -1,0 +1,56 @@
+name: Validate Gitmodules Branches
+
+on:
+  workflow_call:
+    inputs:
+      submodules:
+        description: Submodule paths to validate
+        type: string
+        required: true
+      gitmodules-file:
+        description: Path to the .gitmodules file
+        type: string
+        default: .gitmodules
+
+permissions:
+  contents: read
+
+jobs:
+  validate-gitmodules-branches:
+    name: Validate submodule branch entries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          submodules: false
+
+      - name: Validate .gitmodules branch entries
+        env:
+          SUBMODULES: ${{ inputs.submodules }}
+          GITMODULES_FILE: ${{ inputs.gitmodules-file }}
+        run: |
+          if [ -n "${{ github.base_ref }}" ]; then
+            target_branch="${{ github.base_ref }}"
+          else
+            target_branch="${{ github.ref_name }}"
+          fi
+
+          failed=0
+          for submodule in $SUBMODULES; do
+            branch=$(git config -f "$GITMODULES_FILE" --get "submodule.${submodule}.branch" || true)
+            if [ -z "$branch" ]; then
+              echo "${submodule}: missing branch entry in ${GITMODULES_FILE}"
+              failed=1
+            elif [ "$branch" != "$target_branch" ]; then
+              echo "${submodule}: branch is '${branch}', expected '${target_branch}'"
+              failed=1
+            fi
+          done
+
+          if [ "$failed" -ne 0 ]; then
+            echo "gitmodules branch validation failed"
+            exit 1
+          fi
+
+          echo "gitmodules branch validation passed for target branch '${target_branch}'"
