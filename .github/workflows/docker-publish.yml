@@ -23,10 +23,15 @@ on:
             - matter_extension_dependencies
             - slt_cli
 
+permissions:
+  contents: read
+
 jobs:
   # Decide which images to build: on push, only images whose folder changed; on dispatch, the selected image.
   changes:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       matter_extension_dependencies: ${{ steps.filter.outputs.matter_extension_dependencies }}
       slt_cli: ${{ steps.filter.outputs.slt_cli }}
