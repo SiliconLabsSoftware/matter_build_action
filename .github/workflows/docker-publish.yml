@@ -4,7 +4,8 @@ on:
   push:
     paths:
       - '.github/workflows/docker-publish.yml'
-      - 'docker/*'
+      - 'docker/matter_extension_dependencies/**'
+      - 'docker/slt_cli/**'
 
   workflow_dispatch:
     inputs:
@@ -12,9 +13,56 @@ on:
           required: false
           type: boolean
           default: false
+        image:
+          description: Image to build
+          required: false
+          type: choice
+          default: all
+          options:
+            - all
+            - matter_extension_dependencies
+            - slt_cli
+
+permissions:
+  contents: read
 
 jobs:
+  # Decide which images to build: on push, only images whose folder changed; on dispatch, the selected image.
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      matter_extension_dependencies: ${{ steps.filter.outputs.matter_extension_dependencies }}
+      slt_cli: ${{ steps.filter.outputs.slt_cli }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed images
+        id: filter
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          IMAGE: ${{ github.event.inputs.image }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          for name in matter_extension_dependencies slt_cli; do
+            if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+              [[ "$IMAGE" == "all" || "$IMAGE" == "$name" ]] && build=true || build=false
+            elif [[ -z "$BEFORE" || "$BEFORE" =~ ^0+$ ]] || \
+                 git diff --name-only "$BEFORE" "$GITHUB_SHA" | grep -qE "^(docker/$name/|\.github/workflows/docker-publish\.yml$)"; then
+              build=true
+            else
+              build=false
+            fi
+            echo "$name=$build" >> $GITHUB_OUTPUT
+            echo "$name: $build"
+          done
+
   publish-matter-extension-dependencies-image:
+    needs: changes
+    if: needs.changes.outputs.matter_extension_dependencies == 'true'
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -33,21 +81,48 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Set version variable for tagging the image by reading from docker/version file
-      - name: Read and print version from docker/version file
+      # Set version variable for tagging the image by reading from docker/matter_extension_dependencies/version file
+      - name: Read and print version from docker/matter_extension_dependencies/version file
         run: |
-          SISDK_Tag=$(grep '^SISDK_Tag=' docker/version | cut -d'=' -f2)
-          WiFI_SDK_Tag=$(grep '^WiFI_SDK_Tag=' docker/version | cut -d'=' -f2)
+          SISDK_Tag=$(grep '^SISDK_Tag=' docker/matter_extension_dependencies/version | cut -d'=' -f2)
+          WiFI_SDK_Tag=$(grep '^WiFI_SDK_Tag=' docker/matter_extension_dependencies/version | cut -d'=' -f2)
           VERSION="SiSDK${SISDK_Tag}_WiFi_SDK${WiFI_SDK_Tag}"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Parsed VERSION: $VERSION"
       
-      # Call docker/build.sh and pass version as an argument
+      # Call docker/matter_extension_dependencies/build.sh and pass version as an argument
       - name: Build and push Docker image
         run: |
-          chmod +x docker/build.sh
+          chmod +x docker/matter_extension_dependencies/build.sh
           if [[ "${{ github.event.inputs.push_images }}" == "true" ]]; then
-            ./docker/build.sh --tag "$VERSION" --push
+            ./docker/matter_extension_dependencies/build.sh --tag "$VERSION" --push
           else
-            ./docker/build.sh --tag "$VERSION"
+            ./docker/matter_extension_dependencies/build.sh --tag "$VERSION"
+          fi
+
+  publish-slt-cli-image:
+    needs: changes
+    if: needs.changes.outputs.slt_cli == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # build.sh reads the SLT version from docker/slt_cli/version
+      - name: Build and push Docker image
+        run: |
+          chmod +x docker/slt_cli/build.sh
+          if [[ "${{ github.event.inputs.push_images }}" == "true" ]]; then
+            ./docker/slt_cli/build.sh --push
+          else
+            ./docker/slt_cli/build.sh
           fi

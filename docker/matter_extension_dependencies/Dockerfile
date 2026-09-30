@@ -82,7 +82,7 @@ RUN wget https://corretto.aws/downloads/resources/21.0.7.6.1/amazon-corretto-21.
 FROM ghcr.io/project-chip/chip-build:${VERSION}
 
 # Add Python requirements
-ADD docker/requirements.txt /tmp/requirements.txt
+ADD docker/matter_extension_dependencies/requirements.txt /tmp/requirements.txt
 
 # Set environment variables for SDKs and tools
 ENV GSDK_ROOT=/opt/silabs/simplicity_sdk/
