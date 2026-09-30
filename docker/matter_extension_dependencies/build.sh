@@ -46,7 +46,7 @@ IMAGE_NAME="ghcr.io/siliconlabssoftware/matter_extension_dependencies"
 docker build \
   --build-arg SISDK_Tag="$SISDK_Tag" \
   --build-arg WiFI_SDK_Tag="$WiFI_SDK_Tag" \
-  -f docker/Dockerfile \
+  -f docker/matter_extension_dependencies/Dockerfile \
   -t "${IMAGE_NAME}:${TAG}" .
 
 # Push the image only if --push was provided
