@@ -27,9 +27,9 @@ if [[ -z "$TAG" ]]; then
 fi
 
 # Example TAG: SiSDKv2024.12.1-0.de_WiFi_SDKv3.4.1
-# Extract SISDK_Tag and WiFI_SDK_Tag from TAG
-SISDK_Tag=$(echo "$TAG" | sed -n 's/^SiSDK\([^_]*\)_WiFi_SDK.*$/\1/p')
-WiFI_SDK_Tag=$(echo "$TAG" | sed -n 's/^SiSDK[^_]*_WiFi_SDK\(.*\)$/\1/p')
+# Extract SISDK_Tag and WiFI_SDK_Tag from TAG without the v prefix
+SISDK_Tag=$(echo "$TAG" | sed -n 's/^SiSDKv\([^_]*\)_WiFi_SDK.*$/\1/p')
+WiFI_SDK_Tag=$(echo "$TAG" | sed -n 's/^SiSDK[^_]*_WiFi_SDKv\(.*\)$/\1/p')
 
 if [[ -z "$SISDK_Tag" || -z "$WiFI_SDK_Tag" ]]; then
   echo "ERROR: Could not parse SISDK_Tag or WiFI_SDK_Tag from version tag: $TAG"
