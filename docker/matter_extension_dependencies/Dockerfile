@@ -27,12 +27,17 @@ RUN set -x \
 # util/third_party/ot-br-posix/third_party/cpp-httplib/repo/test/www/#U65e5#U672c#U8a9eDir/#U65e5#U672c#U8a9eFile.txt
 ENV LANG=C.UTF-8
 
-# Download and extract Simplicity SDK using SISDK_Tag, remove unused protocols
-RUN wget https://github.com/SiliconLabs/simplicity_sdk/releases/download/${SISDK_Tag}/simplicity-sdk.zip -O /tmp/simplicity_sdk.zip \
-    && unzip /tmp/simplicity_sdk.zip -d /tmp/simplicity_sdk \
-    && rm -rf /tmp/simplicity_sdk.zip \
-    && rm -rf /tmp/simplicity_sdk/protocol/flex /tmp/simplicity_sdk/protocol/z-wave /tmp/simplicity_sdk/protocol/wisun \
-    && find /tmp/simplicity_sdk/protocol/openthread -name "*efr32mg21*" -delete \
+# Clone the Simplicity SDK prerelease branch and remove unused protocols
+RUN set -eu \
+    && git lfs install \
+    && git clone --depth=1 --single-branch --branch=sisdk-2026.12 \
+        https://github.com/SiliconLabsSoftware/sisdk-prerelease.git \
+        /tmp/simplicity_sdk \
+    && cd /tmp/simplicity_sdk \
+    && git lfs pull \
+    && rm -rf .git \
+    && rm -rf protocol/flex protocol/z-wave protocol/wisun \
+    && find . -path "*/protocol/openthread" -type d -exec find {} -name "*efr32mg21*" -delete \; \
     && : # last line
 
 # Clone WiSeConnect Wi-Fi and Bluetooth Software 2.12.0 (7dc7686)
@@ -41,41 +46,69 @@ RUN git clone --depth=1 --single-branch --branch=2.12.0 https://github.com/Silic
     && rm -rf .git \
     && : # last line
 
-# Clone WiSeConnect SDK using WiFI_SDK_Tag
-RUN git clone --depth=1 --single-branch --branch=${WiFI_SDK_Tag} https://github.com/SiliconLabs/wiseconnect.git /tmp/wifi_sdk \
+# Clone the WiSeConnect SDK prerelease branch
+RUN git clone --depth=1 --single-branch --branch=wiseconnect-2026.12 \
+    https://github.com/SiliconLabsSoftware/wiseconnect-prerelease.git \
+    /tmp/wifi_sdk \
     && cd /tmp/wifi_sdk \
     && rm -rf .git \
     && : # last line
 
-# Download and extract SLC CLI
-RUN wget https://www.silabs.com/documents/public/software/slc_cli_linux.zip \
-    && unzip ./slc_cli_linux.zip -d /tmp \
-    && rm ./slc_cli_linux.zip \
+# Setup SLT CLI (kept in the final image on PATH as /opt/silabs/slt/slt)
+RUN set -x \
+    && mkdir -p /tmp/slt_install /tmp/slt_cli_bin \
+    && curl -fsSL https://www.silabs.com/documents/public/software/slt-cli-1.2.2-linux-x64.zip -o /tmp/slt.zip \
+    && unzip -q /tmp/slt.zip -d /tmp/slt_install \
+    && rm /tmp/slt.zip \
+    && chmod +x /tmp/slt_install/slt \
+    && cp -a /tmp/slt_install/slt /tmp/slt_cli_bin/slt \
     && : # last line
 
-# Download and extract Simplicity Commander
-RUN wget https://www.silabs.com/documents/public/software/SimplicityCommander-Linux.zip \
-    && unzip ./SimplicityCommander-Linux.zip -d /tmp/simplicity-commander \
-    && rm ./SimplicityCommander-Linux.zip \
-    && FILE=$(find /tmp/simplicity-commander -name "*Commander_linux_x86_64*") \
-    && if [ -n "$FILE" ]; then \
-    tar -xjvf "$FILE" -C /tmp/simplicity-commander; \
-    else \
-    echo "File not found"; \
-    fi \
+# Install packages via SLT (slc-cli, python) and copy to /tmp for final image.
+#
+# agents_md Jinja generation loads the SLT python apack via Jep. SLC discovers that
+# apack through ~/.silabs/slt/apack_registry.json (+ local.json), not by scanning
+# installs/archive alone. Copying only python-v* leaves generation broken with:
+#   "python script did not properly register a template generator"
+# which is the same failure Silabs documents as needing `slt install python`
+# (that command regenerates the registry — bake the registry instead).
+RUN set -x \
+    && /tmp/slt_install/slt install slc-cli \
+    && /tmp/slt_install/slt install python \
+    && cp -a $(/tmp/slt_install/slt where slc-cli) /tmp/slc_cli \
+    && mkdir -p /tmp/slt_home/installs/archive \
+    && cp -a /root/.silabs/slt/apack_registry.json /tmp/slt_home/ \
+    && cp -a /root/.silabs/slt/local.json /tmp/slt_home/ \
+    && (cp -a /root/.silabs/slt/apack_registry.lock /tmp/slt_home/ || true) \
+    # Copy unpacked apack dirs only (globs also match *.zip; a failed
+    # `[ -d ] && cp` as the last for-iteration aborts under set -e / &&).
+    && find /root/.silabs/slt/installs/archive -maxdepth 1 -type d \
+         \( -name 'python-v*' -o -name 'java21-v*' -o -name 'slc-cli-v*' \) \
+         -exec cp -a {} /tmp/slt_home/installs/archive/ \; \
+    && cp -a /root/.silabs/slt/installs/archive/local.json /tmp/slt_home/installs/archive/ \
+    && (cp -a /root/.silabs/slt/installs/archive/apack-link.json /tmp/slt_home/installs/archive/ || true) \
+    && test -f /tmp/slt_home/apack_registry.json \
+    && test -f /tmp/slt_home/local.json \
+    && PYTHON_DIR=$(find /tmp/slt_home/installs/archive -maxdepth 1 -type d -name 'python-v*' | sort -V | tail -1) \
+    && test -n "$PYTHON_DIR" \
+    && test -f "$PYTHON_DIR/python/apack.json" \
+    && grep -q '"python"' /tmp/slt_home/apack_registry.json \
+    && grep -q 'apack_directory' /tmp/slt_home/apack_registry.json \
     && : # last line
 
-# Download and extract ARM GCC toolchain v12.2.rel1
-RUN wget https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-eabi.tar.xz -O /tmp/arm-gnu-toolchain.tar.xz \
-    && tar -xJvf /tmp/arm-gnu-toolchain.tar.xz -C /tmp \
-    && rm -rf /tmp/arm-gnu-toolchain.tar.xz \
+# Install Simplicity Commander via SLT
+RUN set -x \
+    && /tmp/slt_install/slt install commander \
+    && mkdir -p /tmp/simplicity-commander \
+    && cp -a $(/tmp/slt_install/slt where commander) /tmp/simplicity-commander/commander \
     && : # last line
 
-# Download and extract Amazon Corretto Java 21
-RUN wget https://corretto.aws/downloads/resources/21.0.7.6.1/amazon-corretto-21.0.7.6.1-linux-x64.tar.gz -O /tmp/java.tar.gz \
-    && tar -xzf /tmp/java.tar.gz -C /tmp \
-    && rm /tmp/java.tar.gz \
-    && ls /tmp \
+# Install ARM GCC toolchain and Java via SLT
+RUN set -x \
+    && /tmp/slt_install/slt install gcc-arm-none-eabi \
+    && cp -a $(/tmp/slt_install/slt where gcc-arm-none-eabi) /tmp/arm-gcc \
+    && /tmp/slt_install/slt install java21 \
+    && cp -a $(/tmp/slt_install/slt where java21)/jre /tmp/java \
     && : # last line
 
 # Stage 2: Final image for SDK compilation
@@ -88,10 +121,12 @@ ADD docker/matter_extension_dependencies/requirements.txt /tmp/requirements.txt
 ENV GSDK_ROOT=/opt/silabs/simplicity_sdk/
 ENV SISDK_ROOT=/opt/silabs/simplicity_sdk/
 ENV WISECONNECT_SDK_ROOT=/opt/silabs/wiseconnect-wifi-bt-sdk/
-ENV WISECONNECT3_DIR=${SISDK_ROOT}/extension/wiseconnect
+ENV WIFI_SDK_ROOT=/opt/silabs/wifi_sdk/
 ENV ARM_GCC_DIR=/opt/arm-gcc
-ENV JAVA21_HOME=/opt/silabs/amazon-corretto-21.0.7.6.1-linux-x64
+ENV JAVA21_HOME=/opt/silabs/java
+ENV PATH="${PATH}:/opt/silabs/slt/"
 ENV PATH="${PATH}:/opt/silabs/slc_cli/"
+ENV PATH="${PATH}:/opt/silabs/simplicity-commander/commander"
 ENV PATH="${PATH}:${ARM_GCC_DIR}/bin"
 ENV PATH="${PATH}:${JAVA21_HOME}/bin"
 ENV POST_BUILD_EXE=/opt/silabs/simplicity-commander/commander/commander
@@ -99,8 +134,23 @@ ENV POST_BUILD_EXE=/opt/silabs/simplicity-commander/commander/commander
 # Copy SDKs and tools from build stage to final image
 COPY --from=build /tmp/simplicity_sdk ${SISDK_ROOT}
 COPY --from=build /tmp/wiseconnect-wifi-bt-sdk/ ${WISECONNECT_SDK_ROOT}
-COPY --from=build /tmp/wifi_sdk ${WISECONNECT3_DIR}
+COPY --from=build /tmp/wifi_sdk ${WIFI_SDK_ROOT}
 COPY --from=build /tmp/slc_cli /opt/silabs/slc_cli
+COPY --from=build /tmp/slt_cli_bin/slt /opt/silabs/slt/slt
 COPY --from=build /tmp/simplicity-commander /opt/silabs/simplicity-commander
-COPY --from=build /tmp/arm-gnu-toolchain-* ${ARM_GCC_DIR}
-COPY --from=build /tmp/amazon-corretto-21.0.7.6.1-linux-x64 ${JAVA21_HOME}
+COPY --from=build /tmp/arm-gcc ${ARM_GCC_DIR}
+COPY --from=build /tmp/java ${JAVA21_HOME}
+# Full SLT discovery state for agents_md (registry + python/java/slc apacks)
+COPY --from=build /tmp/slt_home/ /root/.silabs/slt/
+
+RUN set -e \
+    && chmod +x /opt/silabs/slt/slt \
+    && ln -sf /opt/silabs/slt/slt /usr/local/bin/slt \
+    && test -f /root/.silabs/slt/apack_registry.json \
+    && test -f /root/.silabs/slt/local.json \
+    && PYTHON_DIR=$(find /root/.silabs/slt/installs/archive -maxdepth 1 -type d -name 'python-v*' | sort -V | tail -1) \
+    && test -n "$PYTHON_DIR" \
+    && test -f "$PYTHON_DIR/python/apack.json" \
+    && grep -q '"python"' /root/.silabs/slt/apack_registry.json \
+    && slt --version \
+    && slc --version

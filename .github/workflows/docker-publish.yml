@@ -86,7 +86,7 @@ jobs:
         run: |
           SISDK_Tag=$(grep '^SISDK_Tag=' docker/matter_extension_dependencies/version | cut -d'=' -f2)
           WiFI_SDK_Tag=$(grep '^WiFI_SDK_Tag=' docker/matter_extension_dependencies/version | cut -d'=' -f2)
-          VERSION="SiSDK${SISDK_Tag}_WiFi_SDK${WiFI_SDK_Tag}"
+          VERSION="SiSDKv${SISDK_Tag}_WiFi_SDKv${WiFI_SDK_Tag}"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Parsed VERSION: $VERSION"
       
